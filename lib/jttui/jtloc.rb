@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 #
 # Jakub Travnik's textmode user interface
 # language localization
@@ -126,18 +127,19 @@ class String
   def -@
     JTLanguage.translate(self)
   end
+
   # & make easy text substitution (for up to 9 substitutions)
   # ex. a='start &2 &1 && end'
   #     a & 'hello' => 'start &2 hello & end'
   #     a & ['hello'] => 'start &2 hello & end'
   #     a & ['hello','world'] => 'start world hello & end'
   def &(arg)
-    arg=[arg] if String===arg
-    res=self.dup
-    arg.each_with_index{ |x,i|
-      res.gsub!('&'+(i+1).to_s,x)
+    arg = [arg] if String === arg
+    res = self.dup
+    arg.each_with_index { |x, i|
+      res.gsub!('&' + (i + 1).to_s, x)
     }
-    res.gsub!('&&','&')
+    res.gsub!('&&', '&')
     res
   end
 end
@@ -145,106 +147,114 @@ end
 module JTLanguage
   extend self
   def load_locale(basename)
-    @localehash={} 
-    langname=ENV['LC_MESSAGES']
-    langname=ENV['LC_ALL'] unless langname
-    langname=ENV['LANG'] unless langname
+    @localehash = {}
+    langname = ENV['LC_MESSAGES']
+    langname = ENV['LC_ALL'] unless langname
+    langname = ENV['LANG'] unless langname
     if langname
-      unless langname=~/[a-zA-Z_0-9]+/ # for file safety
-	raise "invalid locale environment variable: #{langname}"
+      unless langname =~ /[a-zA-Z_0-9]+/ # for file safety
+        raise "invalid locale environment variable: #{langname}"
       end
-      @langname=''
-      @localefile=basename+'.'+langname
+
+      @langname = ''
+      @localefile = basename + '.' + langname
       begin
-	File.open(@localefile){ |f|
-	  @langname=langname
-	  lines=f.readlines.grep /^[^#]/ # remove empty and comment lines
-	  lines.collect!{ |line|
-	    commentpos=line.index(/[^\\]#/)
-	    commentpos ? line[0...commentpos] : line.chomp
-	  }
-	  linenr=0
-	  lines.each{ |line|
-	    linenr+=1
-	    eqpos=line.index(/[^\\]=/)
-	    if eqpos
-	      key=unescape(line[0..eqpos])
-	      value=unescape(line[eqpos+2..-1])
-	      @localehash[key]=value
-	    else
-	      raise "missing '=' in file #{@localefile} on line #{linenr}"
-	    end
-	  }
-	}
+        File.open(@localefile) { |f|
+          @langname = langname
+          lines = f.readlines.grep /^[^#]/ # remove empty and comment lines
+          lines.collect! { |line|
+            commentpos = line.index(/[^\\]#/)
+            commentpos ? line[0...commentpos] : line.chomp
+          }
+          linenr = 0
+          lines.each { |line|
+            linenr += 1
+            eqpos = line.index(/[^\\]=/)
+            if eqpos
+              key = unescape(line[0..eqpos])
+              value = unescape(line[eqpos + 2..-1])
+              @localehash[key] = value
+            else
+              raise "missing '=' in file #{@localefile} on line #{linenr}"
+            end
+          }
+        }
       rescue Errno::ENOENT
-	# no file found is not error
-      end #begin
-    end #if langname
+        # no file found is not error
+      end # begin
+    end # if langname
   end
+
   def unescape(s)
-    s.gsub(/\\#|\\\\|\\=|\\.../){ |substr|
+    s.gsub(/\\#|\\\\|\\=|\\.../) { |substr|
       case substr[1]
       when ?# then '#'
       when ?= then '='
       when ?\\ then "\\"
       when ?x
-	substr[2..3].hex.chr # FIXME: add error handling: return nil if invalid
+        substr[2..3].hex.chr # FIXME: add error handling: return nil if invalid
       else
-	substr[1..3].oct.chr # FIXME: add error handling: return nil if invalid
+        substr[1..3].oct.chr # FIXME: add error handling: return nil if invalid
       end
     }
   end
+
   def escape(s)
     # awful backslashes :-(
-    res=''
-    s.gsub(%r{\\},"\\\\\\\\").gsub('#','\#').gsub('=','\=').each_byte {|x|
-      x<?\s ? res << ("\\x%02x" % x): res << x.chr
+    res = ''
+    s.gsub(%r{\\}, "\\\\\\\\").gsub('#', '\#').gsub('=', '\=').each_byte { |x|
+      x < ?\s ? res << ("\\x%02x" % x) : res << x.chr
     }
     res
   end
+
   def write_missing
-    @write_missing=true
+    @write_missing = true
   end
+
   def translate(orig)
-    res=@localehash.fetch(orig,nil)
+    res = @localehash.fetch(orig, nil)
     return res if res
-#    puts '~~missing:'+orig
+
+    #    puts '~~missing:'+orig
     if defined? @write_missing
-      unless test('f',@localefile)
-	File.open(@localefile,'w'){ |f| 
-	  f.write <<EOT\
-# Generated skeleton file for translation to #{@langname}
-# quick reference for format of this file:
-#  1, comment start with # not prefixed by backslash
-#  2, line have format original=translated
-#  3, sequences with special meaning: \\# is #, \\= is =
-#     \\\\ is \\ \\000 is octal number (exactly 3 digits)
-#     \\x00 is hexadecimal number (exactly 2 digits)
-# you can generate original=original lines for yet untranslated text
-# by calling JTLanguage.write_missing before text translation in source program
-#
-EOT
-	}
+      unless test('f', @localefile)
+        File.open(@localefile, 'w') { |f|
+          f.write <<~EOT\
+            # Generated skeleton file for translation to #{@langname}
+            # quick reference for format of this file:
+            #  1, comment start with # not prefixed by backslash
+            #  2, line have format original=translated
+            #  3, sequences with special meaning: \\# is #, \\= is =
+            #     \\\\ is \\ \\000 is octal number (exactly 3 digits)
+            #     \\x00 is hexadecimal number (exactly 2 digits)
+            # you can generate original=original lines for yet untranslated text
+            # by calling JTLanguage.write_missing before text translation in source program
+            #
+          EOT
+        }
       end
       unless defined? @stamp
-	File.open(@localefile,'a'){ |f|
-	  f.write "#\n#\n# UNTRANSLATED STRINGS WILL FOLLOW\n#generated at: "
-	  f.write Time.new.to_s+' by '+(ENV['USER']||'unknown')+'@'+
-	    (ENV['HOSTNAME']||'unknown')+"\n#\n"
-	}
-	@stamp=true
+        File.open(@localefile, 'a') { |f|
+          f.write "#\n#\n# UNTRANSLATED STRINGS WILL FOLLOW\n#generated at: "
+          f.write Time.new.to_s + ' by ' + (ENV['USER'] || 'unknown') + '@' +
+                  (ENV['HOSTNAME'] || 'unknown') + "\n#\n"
+        }
+        @stamp = true
       end
-      File.open(@localefile,'a'){ |f|
-	eorig=escape(orig)
-	f.write "#{eorig}=#{eorig}\n"
+      File.open(@localefile, 'a') { |f|
+        eorig = escape(orig)
+        f.write "#{eorig}=#{eorig}\n"
       }
-      @localehash[orig]=orig
+      @localehash[orig] = orig
     end
     return orig
   end
+
   def localetranslation
     @localehash
   end
+
   def localename
     @langname
   end

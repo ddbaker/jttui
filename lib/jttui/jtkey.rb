@@ -157,8 +157,8 @@ module JTKey
 
   def learnkeys
     print "Learn keys for #{ENV["TERM"]} terminal:\n" +
-        "press requested key then enter for every entry" +
-        "(or press enter to ingnore key)\n"
+            "press requested key then enter for every entry" +
+            "(or press enter to ingnore key)\n"
     @keyhash = Hash.new
     @keynames.each { |x| print x, ": "; @keyhash[gets.chomp] = x }
     print "note: f1-f10 keys will be also accessible as ESC digit\n"
@@ -234,8 +234,8 @@ module JTKey
     else
       term = ENV["TERM"]
       lpath = ENV["HOME"] + "/.jtkey/TERM." + term
-      lpath = "/usr/lib/jtkey/TERM." + term unless File.exists? lpath
-      if File.exists? lpath
+      lpath = "/usr/lib/jtkey/TERM." + term unless File.exist? lpath
+      if File.exist? lpath
         loadkeydef(lpath)
       else
         print "You are using terminal #{term} which is not in database\n"
