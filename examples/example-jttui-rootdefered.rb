@@ -1,9 +1,12 @@
 #!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
 
+$: << File.dirname(__FILE__)
+
 require 'addlocalpath'
 require 'jttui/jttui'
 require 'jttui/jttuistd'
+require 'continuation'
 
 # get root
 runmain,root=callcc{ |c1|
@@ -27,6 +30,6 @@ d1.addtabstop bq
 
 
 # run mainloop if you want
-callcc{ |$c3|
+callcc{ |i| $c3 = i
   runmain.call
 }

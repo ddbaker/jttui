@@ -66,78 +66,82 @@
 #  this program requires gpm socket at /dev/gpmctl to work, otherwise
 #  jttui will use xterm sequences
 
-
 begin
-$NOSOCKET=false
-require 'socket'
+  $NOSOCKET = false
+  require "socket"
 rescue LoadError
-$NOSOCKET=true
+  $NOSOCKET = true
 end
 
 module JTGPMouse
   extend self
   # event numbers
-  MEvent_move=1
-  MEvent_drag=2
-  MEvent_down=4
-  MEvent_up=8
-  MEveny_single=16
-  MEvent_double=32
-  MEvent_triple=64
-  MEvent_mflag=128
+  MEvent_move = 1
+  MEvent_drag = 2
+  MEvent_down = 4
+  MEvent_up = 8
+  MEveny_single = 16
+  MEvent_double = 32
+  MEvent_triple = 64
+  MEvent_mflag = 128
   # there are other events but we won't use them
   # Event_mask is default eventmask for this module
-  Event_mask=MEvent_down+MEvent_up+MEveny_single+
-    MEvent_double+MEvent_mflag
+  Event_mask = MEvent_down + MEvent_up + MEveny_single +
+               MEvent_double + MEvent_mflag
   # no default handler even for drag and triple clicks
-  Default_mask= ~ (Event_mask | MEvent_drag | MEvent_triple)
+  Default_mask = ~(Event_mask | MEvent_drag | MEvent_triple)
   # button numbers
-  MButton_left=4
-  MButton_middle=2
-  MButton_right=1
+  MButton_left = 4
+  MButton_middle = 2
+  MButton_right = 1
   # margin numbers
-  MMargin_top=1
-  MMargin_bottom=2
-  MMargin_left=4
-  MMargin_right=8
+  MMargin_top = 1
+  MMargin_bottom = 2
+  MMargin_left = 4
+  MMargin_right = 8
   # init mouse returns false if gpm is not communicating
-  def init_mouse(evmask=Event_mask, defaultmask= Default_mask,
-		 minmod=0, maxmod=0)
+  def init_mouse(evmask = Event_mask, defaultmask = Default_mask,
+                 minmod = 0, maxmod = 0)
     return false if $NOSOCKET
-    @gpmsock=nil
-    tn=ttynumber
-    @gpmsock=UNIXSocket.open('/dev/gpmctl')
-    request=[evmask, defaultmask, minmod, maxmod, $$, tn].pack 'S4i2'
+    @gpmsock = nil
+    tn = ttynumber
+    @gpmsock = UNIXSocket.open("/dev/gpmctl")
+    request = [evmask, defaultmask, minmod, maxmod, $$, tn].pack "S4i2"
     @gpmsock.write request
     @gpmsock.flush
     true
   rescue
     @gpmsock.close if @gpmsock
-    @gpmsock=false
+    @gpmsock = false
   end
+
   def close_mouse
     @gpmsock.close if @gpmsock
   end
+
   def ok?; @gpmsock ? true : false end
+
   def event?
     return false unless @gpmsock
-    (select [@gpmsock],nil,nil,0) ? true : false
+    (select [@gpmsock], nil, nil, 0) ? true : false
   end
+
   def readevent
-    reply=@gpmsock.read 24
-    @gpmb,@modifiers,@vc,@dx,@dy,@x,@y,@etype,@clicks,@margin=
-      reply.unpack 'C2Ss4i3'
-    @x-=1;@y-=1 # we want top left corner to be 0,0
-    @button=1 if @gpmb & MButton_left !=0     # xterm mouse like buttons
-    @button=2 if @gpmb & MButton_middle !=0
-    @button=3 if @gpmb & MButton_right !=0
-    @button=4 if @etype & MEvent_up !=0
-    return @button,@x,@y
+    reply = @gpmsock.read 24
+    @gpmb, @modifiers, @vc, @dx, @dy, @x, @y, @etype, @clicks, @margin =
+      reply.unpack "C2Ss4i3"
+    @x -= 1; @y -= 1 # we want top left corner to be 0,0
+    @button = 1 if @gpmb & MButton_left != 0     # xterm mouse like buttons
+    @button = 2 if @gpmb & MButton_middle != 0
+    @button = 3 if @gpmb & MButton_right != 0
+    @button = 4 if @etype & MEvent_up != 0
+    return @button, @x, @y
   end
+
   def ttynumber
-    tty=JTCur.ttyname $stdin.fileno
-    raise 'not a tty' unless tty
-    r=tty.scan(/(\d\d?\d?)\Z/)
+    tty = JTCur.ttyname $stdin.fileno
+    raise "not a tty" unless tty
+    r = tty.scan(/(\d\d?\d?)\Z/)
     # gpm mouse now works even when consoles does not contain
     # 'tty' substring in name (such as '/dev/vc/1'). Original libgpm
     # library (which we bypass and comunicate with gpm server directly)
@@ -148,11 +152,11 @@ module JTGPMouse
     # following regexp try to guess if we are on console, otherwise
     # raise exception to disable gpm processing (and use xterm mouse
     # escape sequences through jtkey.rb)
-    raise 'not a linux console tty' if tty !~ /(\/vc\/|\/tty\d|\/console)/
-    raise 'tty name does not end with number' if r==[]
+    raise "not a linux console tty" if tty !~ /(\/vc\/|\/tty\d|\/console)/
+    raise "tty name does not end with number" if r == []
     r[0][0].to_i
   end
-  attr_reader :button,:gpmsock,:gpmb,:modifiers,
-    :vc,:dx,:dy,:x,:y,:etype,:clicks,:margin
-end
 
+  attr_reader :button, :gpmsock, :gpmb, :modifiers,
+    :vc, :dx, :dy, :x, :y, :etype, :clicks, :margin
+end

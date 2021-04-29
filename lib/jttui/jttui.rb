@@ -62,15 +62,14 @@
 #
 # end of license
 
-require 'jtcur'
-require 'observer'
+require "jtcur"
+require "observer"
 
-require 'jttui/jtkey'
-require 'jttui/jtutil'
-
+require "jttui/jtkey"
+require "jttui/jtutil"
 
 def jttui_version
-  '0.11.0/2002-05-08 20:55 CEST'
+  "0.11.0/2002-05-08 20:55 CEST"
 end
 
 # common window excepton class
@@ -80,238 +79,267 @@ end
 class JTRectangle
   include Observable
   attr_reader :x, :y, :w, :h
-  def initialize(x,y,w,h) # x+w-1 (y+h-1) is most left (bottom) element
-    @x=x; @y=y; @w=w; @h=h
+
+  def initialize(x, y, w, h) # x+w-1 (y+h-1) is most left (bottom) element
+    @x = x; @y = y; @w = w; @h = h
   end
+
   def dup; JTRectangle.new(@x, @y, @w, @h) end
-  def ex; @x+@w end
-  def ey; @y+@h end
-  def x=(v); @x=v; changed; notify_observers self end
-  def y=(v); @y=v; changed; notify_observers self end
+  def ex; @x + @w end
+  def ey; @y + @h end
+  def x=(v); @x = v; changed; notify_observers self end
+  def y=(v); @y = v; changed; notify_observers self end
+
   def w=(v)
-    if v<0
-      raise RuntimeError ,"invalid rectangle (in w=)", caller
+    if v < 0
+      raise RuntimeError, "invalid rectangle (in w=)", caller
     end
-    @w=v; changed; notify_observers self
+    @w = v; changed; notify_observers self
   end
+
   def h=(v)
-    if v<0
-      raise RuntimeError ,"invalid rectangle (in h=)", caller
+    if v < 0
+      raise RuntimeError, "invalid rectangle (in h=)", caller
     end
-    @h=v; changed; notify_observers self
+    @h = v; changed; notify_observers self
   end
+
   def ex=(v)
-    @w=v-@x
-    if @w<0
-      raise RuntimeError ,"invalid rectangle (in w=)", caller
+    @w = v - @x
+    if @w < 0
+      raise RuntimeError, "invalid rectangle (in w=)", caller
     end
     changed; notify_observers self
   end
+
   def ey=(v)
-    @h=v-@y
-    if @h<0
-      raise RuntimeError ,"invalid rectangle (in h=)", caller
+    @h = v - @y
+    if @h < 0
+      raise RuntimeError, "invalid rectangle (in h=)", caller
     end
     changed; notify_observers self
   end
-  def xrange; @x ... @x+@w end
-  def yrange; @y ... @y+@h end
+
+  def xrange; @x...@x + @w end
+  def yrange; @y...@y + @h end
+
   def set(x, y, w, h)
-    if w<0 or h<0
-      raise RuntimeError ,"invalid rectangle (set)", caller
+    if w < 0 or h < 0
+      raise RuntimeError, "invalid rectangle (set)", caller
     end
-    @x=x; @y=y; @w=w; @h=h
+    @x = x; @y = y; @w = w; @h = h
     changed; notify_observers self
   end
+
   def crop(other)
-    newcoords=JTCur.crop @x, other.x, @y, other.y, @w, other.w, @h, other.h
+    newcoords = JTCur.crop @x, other.x, @y, other.y, @w, other.w, @h, other.h
     JTRectangle.new(*newcoords) if newcoords
   end
+
   def enlarge(other)
-    newcoords=(x < other.x ? x : other.x),
-      (y < other.y ? y : other.y),
-      (ex > other.ex ? ex : other.ex),
-      (ey > other.ey ? ey : other.ey)
+    newcoords = (x < other.x ? x : other.x),
+                (y < other.y ? y : other.y),
+                (ex > other.ex ? ex : other.ex),
+    (ey > other.ey ? ey : other.ey)
     JTRectangle.newabs(*newcoords) if newcoords
   end
-  def include? (x,y)
-    @x<=x and x<(@x+@w) and @y<=y and y<(@y+@h)
+
+  def include?(x, y)
+    @x <= x and x < (@x + @w) and @y <= y and y < (@y + @h)
   end
+
   def ==(other)
-    @x==other.x and @y==other.y and @w==other.w and @h==other.h
+    @x == other.x and @y == other.y and @w == other.w and @h == other.h
   end
 end
-def JTRectangle.newabs(sx,sy,ex,ey) # all inclusive
-  JTRectangle.new(sx, sy, ex-sx, ey-sy)
+
+def JTRectangle.newabs(sx, sy, ex, ey) # all inclusive
+  JTRectangle.new(sx, sy, ex - sx, ey - sy)
 end
 
 class JTTColor
-  @@colornr=1
+  @@colornr = 1
   attr_reader :color_attr, :name
-  def initialize(name,fg,bg,cattr,ncattr)
+
+  def initialize(name, fg, bg, cattr, ncattr)
     #order is name, foreground, background, attribute for color,
     #         attribute for noncolor
-    @name=name
-    @fg=fg; @bg=bg; @cattr=cattr; @ncattr=ncattr
-    @color_attr=nil
-    @myid=@@colornr
-    @@colornr+=1
+    @name = name
+    @fg = fg; @bg = bg; @cattr = cattr; @ncattr = ncattr
+    @color_attr = nil
+    @myid = @@colornr
+    @@colornr += 1
   end
+
   def recompute
     if JTTui.colortui
       # colors and attributes
-      JTCur.init_pair @myid,@fg,@bg
-      @color_attr=JTCur.color_pair(@myid)|@cattr
+      JTCur.init_pair @myid, @fg, @bg
+      @color_attr = JTCur.color_pair(@myid) | @cattr
     else
       # only attributes if no color
-      @color_attr=@ncattr
+      @color_attr = @ncattr
     end
     eval "def JTTui.#{@name};#{@color_attr};end"
     self
   end
 end
 
-
 # subclass this to get your own custom window class
 class JTTWindow
-  ALIGN_FREE=0
-  ALIGN_CLIENT=1
-  ALIGN_TOP=2
-  ALIGN_BOTTOM=3
-  ALIGN_LEFT=4
-  ALIGN_RIGHT=5
-  ALIGN_CENTERX=6
-  ALIGN_CENTERY=7
-  ALIGN_CENTER=8
+  ALIGN_FREE = 0
+  ALIGN_CLIENT = 1
+  ALIGN_TOP = 2
+  ALIGN_BOTTOM = 3
+  ALIGN_LEFT = 4
+  ALIGN_RIGHT = 5
+  ALIGN_CENTERX = 6
+  ALIGN_CENTERY = 7
+  ALIGN_CENTER = 8
   attr_reader :align, :name, :parent, :subwindows, :visible, :color, :cursor
   attr_accessor :userfocus
-  def initialize(parent, name, x, y, w, h, align=ALIGN_FREE, visible=true)
-    parent=JTTui.rootwindow unless parent
+
+  def initialize(parent, name, x, y, w, h, align = ALIGN_FREE, visible = true)
+    parent = JTTui.rootwindow unless parent
     unless parent
       raise JTTWindowException,
-	"Cannot create window because root window does not exist", caller
+            "Cannot create window because root window does not exist", caller
     end
-    @parent=parent; @name=name
-    @align=align; @visible=visible
-    @placement=JTRectangle.new x, y, w, h
-    @clientarea=computeclientarea
-    @subwindows=[]
-    @userfocus=false
-    @closed=false
-    @color=JTTui.color_basic
-    @cursor=nil
-    @atclose=[]
+    @parent = parent; @name = name
+    @align = align; @visible = visible
+    @placement = JTRectangle.new x, y, w, h
+    @clientarea = computeclientarea
+    @subwindows = []
+    @userfocus = false
+    @closed = false
+    @color = JTTui.color_basic
+    @cursor = nil
+    @atclose = []
     userinit
     resizedself
     parent.add_child self
-  rescue; reraise
-  end
+  rescue; reraise   end
+
   def userinit
     # to be overridden by subclasses, it is called from initialize
   end
+
   def closed?
     @closed
   end
+
   def close
-    @closed=true
+    @closed = true
     @parent.del_child self if @parent
-    @atclose.each {|m| m.call}
+    @atclose.each { |m| m.call }
     # duplication of subwindows is need because 'each' would be confused about
     # subwindows change in @parent.del_child call
-    @subwindows.dup.each {|w| w.close}
+    @subwindows.dup.each { |w| w.close }
     addmessage @parent, :paint if @parent
     delmessages self
     JTTui.clearpos self
   end
+
   def runatclose(&block) # associated block will be executed at window close
     @atclose << Proc.new(&block)
   end
+
   def add_child(w)
     addmessage @subwindows.last, :lostfocus
     @subwindows << w
     addmessage w, :gotfocus
     addmessage w, :paint
   end
+
   def del_child(w)
-    w.lostfocus if @subwindows.last==w
+    w.lostfocus if @subwindows.last == w
     @subwindows.delete w
     addmessage @subwindows.last, :gotfocus
   end
+
   def up_child(w)
-    return if @subwindows.last==w
+    return if @subwindows.last == w
     addmessage @subwindows.last, :lostfocus
     @subwindows.delete w
     @subwindows << w
     addmessage @subwindows.last, :gotfocus
     addmessage w, :paint
   end
+
   def down_child(w)
-    return if @subwindows.first==w
+    return if @subwindows.first == w
     addmessage @subwindows.last, :lostfocus
     @subwindows.delete w
-    @subwindows=[w] + @subwindows
+    @subwindows = [w] + @subwindows
     addmessage @subwindows.last, :gotfocus
-    wp=w.placement
-    @subwindows.each{|s|
+    wp = w.placement
+    @subwindows.each { |s|
       addmessage s, :paint if s.placement.crop(wp)
     }
   end
+
   def up
     @parent.up_child self if @parent
   end
+
   def down
     @parent.down_child self if @parent
   end
+
   def gotfocus
   end
+
   def lostfocus
   end
+
   def paint
     return unless @visible
     return if @closed
     begin
-      paintcontext {|pc| self.paintself pc }
+      paintcontext { |pc| self.paintself pc }
     rescue # FIXME Object ??
       debug $!
       raise
     end
-    @subwindows.each{|w| 
+    @subwindows.each { |w|
       w.paint if w.visible
     }
   end
+
   def paintself(pc)
     # to be overridden
     # before painting itself call super(pc) if you want paint inheritance
     # pc is current paint context object
-    delmessages self,:paint
+    delmessages self, :paint
     # enable this to see how windows are painted:
     #
     #pc.fillrect 0, 0, w, h, ?\s.ord|JTTui.color_inactive_cur
     #JTCur.refresh
     #sleep 0.2
     #
-    pc.fillrect 0, 0, w, h, ?\s.ord|@color
-    pc.move 0,0
+    pc.fillrect 0, 0, w, h, ?\s.ord | @color
+    pc.move 0, 0
   end
+
   # associated code block will get paint context object
   # note: it is not called if window is not visible
   def paintcontext
     return if not @visible
-    arx,ary,arect=JTTui.abswindowpos self
+    arx, ary, arect = JTTui.abswindowpos self
     return unless arect
-    oldcursorpos=JTCur.getx,JTCur.gety
-    pc=JTTPaintContext.new(arx, ary, arect)
+    oldcursorpos = JTCur.getx, JTCur.gety
+    pc = JTTPaintContext.new(arx, ary, arect)
     yield pc
-    @cursor=pc.cursor
+    @cursor = pc.cursor
     if @cursor
       if self != JTTui.activewindow
-	JTCur.move(*@cursor)
-	c=(JTCur.inch & (JTCur.attr_chartext | JTCur.attr_altcharset)) |
-	  JTTui.color_inactive_cur
-	JTCur.move(*@cursor)
-	JTCur.addch c
+        JTCur.move(*@cursor)
+        c = (JTCur.inch & (JTCur.attr_chartext | JTCur.attr_altcharset)) |
+            JTTui.color_inactive_cur
+        JTCur.move(*@cursor)
+        JTCur.addch c
       else
-	JTCur.move(*@cursor)
+        JTCur.move(*@cursor)
       end
     end
     if self != JTTui.activewindow
@@ -321,16 +349,19 @@ class JTTWindow
     debug $!
     raise
   end
+
   # call this after resizing this window
   def resizedself
     resized
     addmessage @parent, :paint
   end
+
   # call this after changing client area
   def resizedclient
     resized
     addmessage self, :paint
   end
+
   # this is called recursively and from resizedself
   def resized
     # note: paint after resize is done in resizedself -> just resize
@@ -341,33 +372,34 @@ class JTTWindow
     when ALIGN_TOP
       @placement.set 0, 0, @parent.clientw, @placement.h
     when ALIGN_BOTTOM
-      @placement.set(0, @parent.clienth-@placement.h,
-		     @parent.clientw, @placement.h)
+      @placement.set(0, @parent.clienth - @placement.h,
+                     @parent.clientw, @placement.h)
     when ALIGN_LEFT
       @placement.set 0, 0, @placement.w, @parent.clienth
     when ALIGN_RIGHT
-      @placement.set(@parent.clientw-@placement.w, 0,
-		     @placement.w, @parent.clienth)
+      @placement.set(@parent.clientw - @placement.w, 0,
+                     @placement.w, @parent.clienth)
     when ALIGN_CENTERX
-      @placement.set((@parent.clientw-@placement.w)/2, @placement.y,
-		     @placement.w,@placement.h)
+      @placement.set((@parent.clientw - @placement.w) / 2, @placement.y,
+                     @placement.w, @placement.h)
     when ALIGN_CENTERY
-      @placement.set(@placement.x, (@parent.clienth-@placement.h)/2,
-		     @placement.w,@placement.h)
+      @placement.set(@placement.x, (@parent.clienth - @placement.h) / 2,
+                     @placement.w, @placement.h)
     when ALIGN_CENTER
-      @placement.set((@parent.clientw-@placement.w)/2,
-		     (@parent.clienth-@placement.h)/2,
-		     @placement.w,@placement.h)
+      @placement.set((@parent.clientw - @placement.w) / 2,
+                     (@parent.clienth - @placement.h) / 2,
+                     @placement.w, @placement.h)
     when ALIGN_FREE
       # no op
     else
       raise JTTWindowException,
-	"Unknown align value", caller[1..-1]
+            "Unknown align value", caller[1..-1]
     end
-    @clientarea=computeclientarea
+    @clientarea = computeclientarea
     JTTui.clearpos self
-    @subwindows.each {|w| w.resized}
+    @subwindows.each { |w| w.resized }
   end
+
   # to get border space, override computeclientarea method
   # call resizedclient if client area was
   #  changed without change to position and size
@@ -377,196 +409,226 @@ class JTTWindow
   def clienth; @clientarea.h end
   def clientex; @clientarea.ex end
   def clientey; @clientarea.ey end
+
   def computeclientarea
     JTRectangle.new 0, 0, w, h
   end
+
   # placement is duplicated, programs may depend on duplication
   def placement; @placement.dup end
+
   def placement=(pl)
     unless pl.kind_of?(JTRectangle)
       raise JTTWindowException,
-	"Only JTRectangle can be assigned to placement", caller
+            "Only JTRectangle can be assigned to placement", caller
     end
-    @placement=pl;  resizedself
+    @placement = pl; resizedself
   end
+
   def x; @placement.x end
   def y; @placement.y end
   def w; @placement.w end
   def h; @placement.h end
-  def x=(v); @placement.x=v; resizedself end
-  def y=(v); @placement.y=v; resizedself end
-  def w=(v); argfixpos v; @placement.w=v; resizedself end
-  def h=(v); argfixpos v; @placement.h=v; resizedself end
-  def align=(v); argfixpos v; @align=v; resizedself end
+  def x=(v); @placement.x = v; resizedself end
+  def y=(v); @placement.y = v; resizedself end
+  def w=(v); argfixpos v; @placement.w = v; resizedself end
+  def h=(v); argfixpos v; @placement.h = v; resizedself end
+  def align=(v); argfixpos v; @align = v; resizedself end
+
   def visible=(v)
     if @visible ^ v
-      @visible=v
+      @visible = v
       @parent.paint
     end
   end
-  def color=(v); @color=v; addmessage self, :paint end
+
+  def color=(v); @color = v; addmessage self, :paint end
+
   def argfixpos(v)
     unless v.kind_of?(Integer) and v >= 0
       raise JTTWindowException,
-	"Argument must be positive Fixnum", caller[1..-1]
+            "Argument must be positive Fixnum", caller[1..-1]
     end
   end
+
   def addmessage(*msg)
     JTTui.addmessage(*msg)
   end
+
   def delmessages(*msg)
     JTTui.delmessages(*msg)
   end
+
   def each_parent
-    p=self.parent
+    p = self.parent
     while p
       yield p
-      p=p.parent
+      p = p.parent
     end
   end
+
   def parents_array
-    result=[]
-    each_parent{|p| result << p}
+    result = []
+    each_parent { |p| result << p }
     result
   end
+
   def all_subwindows_array
     # note: subwindows are sorted from deepest to 1-level deep
-    result=[]
-    forallsubwindows{|s| result << s}
+    result = []
+    forallsubwindows { |s| result << s }
     result
   end
+
   def forallsubwindows(&block) # iterate over all subwindows (recursively)
     # note: block must not change subwindows array, use forallsubwindowssafe
     #       otherwise
-    wl=@subwindows
-    wl.each{|x| x.forallsubwindows(&block); block.call x}
+    wl = @subwindows
+    wl.each { |x| x.forallsubwindows(&block); block.call x }
   end
+
   def forallsubwindowssafe(&block) # iterate over all subwindows (recursively)
     # block may change subwindows arrays without effect on iteration
-    wl=all_subwindows_array
-    wl.each{|x| block.call x}
+    wl = all_subwindows_array
+    wl.each { |x| block.call x }
   end
 end
 
 class JTTPaintContext
   attr_reader :cursor
-  def initialize(x,y,r)
+
+  def initialize(x, y, r)
     # x,y is top left corner of window (may be outside clipping rectangle r)
-    @tlabsx=x; @tlabsy=y
-    @r=r
-    @shrinkstack=[] # for nested shrinkpaintarea
+    @tlabsx = x; @tlabsy = y
+    @r = r
+    @shrinkstack = [] # for nested shrinkpaintarea
     JTCur.setclip r.x, r.y, r.ex, r.ey
     JTCur.move @tlabsx, @tlabsy
     JTCur.attrset JTTui.color_basic
-    @cursor=nil
+    @cursor = nil
   end
-  def shrinkpaintarea(dx,dy,rx,ry,rw,rh)
+
+  def shrinkpaintarea(dx, dy, rx, ry, rw, rh)
     # make paint area smaller
     # If block is supplied then pc with shrinked area as parameter is passed
     # and after block is done, previous area is restored.
-    # Otherwise undoing shrink is not possible. 
-    oldr=@r
+    # Otherwise undoing shrink is not possible.
+    oldr = @r
     if block_given?
       @shrinkstack << @r
       @shrinkstack << @tlabsx
       @shrinkstack << @tlabsy
     end
-    @tlabsx+=dx
-    @tlabsy+=dy
-    @r=JTRectangle.new(rx+@tlabsx, ry+@tlabsy, rw, rh).crop(oldr)
-    @r=JTRectangle.new(0,0,0,0) unless @r
+    @tlabsx += dx
+    @tlabsy += dy
+    @r = JTRectangle.new(rx + @tlabsx, ry + @tlabsy, rw, rh).crop(oldr)
+    @r = JTRectangle.new(0, 0, 0, 0) unless @r
     JTCur.setclip @r.x, @r.y, @r.ex, @r.ey
-    move 0,0
-    @userclip=nil
+    move 0, 0
+    @userclip = nil
     if block_given?
       yield self
-      @tlabsy=@shrinkstack.pop
-      @tlabsx=@shrinkstack.pop
-      @r=@shrinkstack.pop
+      @tlabsy = @shrinkstack.pop
+      @tlabsx = @shrinkstack.pop
+      @r = @shrinkstack.pop
       JTCur.setclip @r.x, @r.y, @r.ex, @r.ey
     end
   end
+
   # paint routines can use this to know where painting is not necessary
   def clippingrectangle
     return @userclip if defined? @userclip and @userclip
-    @userclip=@r.x-@tlabsx,@r.y-@tlabsy,@r.w,@r.h
+    @userclip = @r.x - @tlabsx, @r.y - @tlabsy, @r.w, @r.h
   end
+
   def move(x, y)
-    JTCur.move @tlabsx+x, @tlabsy+y
+    JTCur.move @tlabsx + x, @tlabsy + y
   end
+
   def moverel(x, y)
     JTCur.moverel x, y
   end
+
   def setcursor
-    c=JTCur.getx, JTCur.gety
-    @cursor=c if @r.include?(*c) 
+    c = JTCur.getx, JTCur.gety
+    @cursor = c if @r.include?(*c)
   end
-  def addchar(c) # c is character (Fixnum)   
+
+  def addchar(c) # c is character (Fixnum)
     JTCur.addch c
   end
+
   def addstr(s)
     JTCur.addstr s.to_s
   end
+
   def addstra(s, a)
     JTCur.addstra s.to_s, a
   end
+
   # addlabelstr hilights characters after '_', use '__' to escape this
   def addlabelstr(s, drawactive, color1, color2, color3, color4)
     JTCur.attrset(drawactive ? color2 : color1)
-    sa=s.split '_'
+    sa = s.split "_"
     addstr sa.shift
-    while sae=sa.shift
-      if sae==''
-  addchar(?_.ord|(drawactive ? color2 : color1))
-	JTCur.attrset drawactive ? color2 : color1
-	addstr sa.shift
+    while sae = sa.shift
+      if sae == ""
+        addchar(?_.ord | (drawactive ? color2 : color1))
+        JTCur.attrset drawactive ? color2 : color1
+        addstr sa.shift
       else
-	JTCur.attrset drawactive ? color4 : color3
-  addchar(sae[0].ord) if sae[0]
-	JTCur.attrset drawactive ? color2 : color1
-	addstr sae[1..-1]
+        JTCur.attrset drawactive ? color4 : color3
+        addchar(sae[0].ord) if sae[0]
+        JTCur.attrset drawactive ? color2 : color1
+        addstr sae[1..-1]
       end
     end
   end
+
   # c is character (Fixnum) or String (only first character of it will be used)
-  def fillrect(x,y,w,h, c)
+  def fillrect(x, y, w, h, c)
     if String === c
-      c=c[0]
+      c = c[0]
       unless c
-	raise JTTWindowException,
-	  "Argument c to fillrect must have at least one character",
-	  caller[1..-1]
+        raise JTTWindowException,
+          "Argument c to fillrect must have at least one character",
+          caller[1..-1]
       end
     end
-    JTCur.fillrect @tlabsx+x, @tlabsy+y, @tlabsx+x+w, @tlabsy+y+h, c
+    JTCur.fillrect @tlabsx + x, @tlabsy + y, @tlabsx + x + w, @tlabsy + y + h, c
   end
-  def frame(x,y,w,h)
-    w-=2; h-=2
-    JTCur.move @tlabsx+x, @tlabsy+y
+
+  def frame(x, y, w, h)
+    w -= 2; h -= 2
+    JTCur.move @tlabsx + x, @tlabsy + y
     JTCur.addch JTCur.acs_ulcorner
-    w.times{ JTCur.addch JTCur.acs_hline}
+    w.times { JTCur.addch JTCur.acs_hline }
     JTCur.addch JTCur.acs_urcorner
-    JTCur.move @tlabsx+x, @tlabsy+y+1
-    h.times{
+    JTCur.move @tlabsx + x, @tlabsy + y + 1
+    h.times {
       JTCur.addch JTCur.acs_vline
-      JTCur.moverel(w,0)
+      JTCur.moverel(w, 0)
       JTCur.addch JTCur.acs_vline
-      JTCur.moverel(-(w+2),1)
+      JTCur.moverel(-(w + 2), 1)
     }
     JTCur.addch JTCur.acs_llcorner
-    w.times{ JTCur.addch JTCur.acs_hline}
+    w.times { JTCur.addch JTCur.acs_hline }
     JTCur.addch JTCur.acs_lrcorner
   end
-  def windowframe(w,color)
+
+  def windowframe(w, color)
     JTCur.attrset color
     frame 0, 0, w.w, w.h
   end
+
   def attrset(color)
     JTCur.attrset color
   end
+
   def attron(color)
     JTCur.attron color
   end
+
   def attroff(color)
     JTCur.attroff color
   end
@@ -574,37 +636,43 @@ end
 
 class JTTRootWindow < JTTWindow
   attr_accessor :root_allow_break, :background
+
   def initialize
-    @name='JTTRootWindow'
-    @parent=nil
-    @subwindows=[]
-    @visible=true
-    @align=ALIGN_CLIENT
-    @closed=false
-    @atclose=[]
-    @background=32|JTTui.color_background
-    @root_allow_break=true
+    @name = "JTTRootWindow"
+    @parent = nil
+    @subwindows = []
+    @visible = true
+    @align = ALIGN_CLIENT
+    @closed = false
+    @atclose = []
+    @background = 32 | JTTui.color_background
+    @root_allow_break = true
     resized
   end
+
   def resized
-    @placement=JTRectangle.new 0, 0, JTCur.cols, JTCur.lines
-    @clientarea=JTRectangle.new 0, 0, w, h
+    @placement = JTRectangle.new 0, 0, JTCur.cols, JTCur.lines
+    @clientarea = JTRectangle.new 0, 0, w, h
     JTTui.clearpos self
-    @subwindows.each {|w| w.resized}
+    @subwindows.each { |w| w.resized }
   end
+
   def paintself(pc)
-    delmessages self,:paint
-    forallsubwindows{|subw| JTTui.delmessages subw,:paint}
+    delmessages self, :paint
+    forallsubwindows { |subw| JTTui.delmessages subw, :paint }
     pc.fillrect 0, 0, w, h, @background # paint some background
   end
+
   def keypress(key)
     # root window is looking for quit key
-    addmessage(nil, :close) if key=='C-c' and @root_allow_break
+    addmessage(nil, :close) if key == "C-c" and @root_allow_break
     addmessage(nil, :paint)
   end
-  def mousepress(b,x,y)
+
+  def mousepress(b, x, y)
     # mouse is actually ignored
   end
+
   def close
     super
     JTTui._delmessages
@@ -612,7 +680,6 @@ class JTTRootWindow < JTTWindow
     JTTui.clearpos self
   end
 end
-
 
 module JTTui
   extend self
@@ -623,36 +690,37 @@ module JTTui
   #           }
   #
   attr_reader :colortui, :colors, :mq, :timeq
-  def run(forcelearn=false)
+
+  def run(forcelearn = false)
     JTKey.init_key(forcelearn)
-    @colors=[
+    @colors = [
       # background - root window color
-      JTTColor.new('color_background',JTCur.color_white,JTCur.color_black,0,0),
+      JTTColor.new("color_background", JTCur.color_white, JTCur.color_black, 0, 0),
       # basic window color,inactives
-      JTTColor.new('color_basic',JTCur.color_black,JTCur.color_white,0,0),
+      JTTColor.new("color_basic", JTCur.color_black, JTCur.color_white, 0, 0),
       # active controls
-      JTTColor.new('color_active',JTCur.color_black,JTCur.color_cyan,0,
-		   JTCur.attr_bold),
+      JTTColor.new("color_active", JTCur.color_black, JTCur.color_cyan, 0,
+                   JTCur.attr_bold),
       # inactive buttons hilighted
-      JTTColor.new('color_inactive_hi',JTCur.color_yellow,JTCur.color_white,
-		 JTCur.attr_bold,JTCur.attr_bold),
+      JTTColor.new("color_inactive_hi", JTCur.color_yellow, JTCur.color_white,
+                   JTCur.attr_bold, JTCur.attr_bold),
       # active controls hilighted
-      JTTColor.new('color_active_hi',JTCur.color_yellow,JTCur.color_cyan,
-		 JTCur.attr_bold,0),
+      JTTColor.new("color_active_hi", JTCur.color_yellow, JTCur.color_cyan,
+                   JTCur.attr_bold, 0),
       # inactive cursor
-      JTTColor.new('color_inactive_cur',JTCur.color_red,JTCur.color_cyan,
-		 JTCur.attr_bold,0),
+      JTTColor.new("color_inactive_cur", JTCur.color_red, JTCur.color_cyan,
+                   JTCur.attr_bold, 0),
       # editable fields normal
-      JTTColor.new('color_edit',JTCur.color_yellow,JTCur.color_blue,
-		 JTCur.attr_bold,0),
+      JTTColor.new("color_edit", JTCur.color_yellow, JTCur.color_blue,
+                   JTCur.attr_bold, 0),
       # editable fields normal, hilight
-      JTTColor.new('color_edit_hi',JTCur.color_red,JTCur.color_cyan,
-		 0,JTCur.attr_bold),
+      JTTColor.new("color_edit_hi", JTCur.color_red, JTCur.color_cyan,
+                   0, JTCur.attr_bold),
       # editable fields hex hilight
-      JTTColor.new('color_edit_hex',JTCur.color_green,JTCur.color_blue,
-		 JTCur.attr_bold,JTCur.attr_dim),
+      JTTColor.new("color_edit_hex", JTCur.color_green, JTCur.color_blue,
+                   JTCur.attr_bold, JTCur.attr_dim),
       # editable fields disabled
-      JTTColor.new('color_edit_dis',JTCur.color_white,JTCur.color_blue,0,0)
+      JTTColor.new("color_edit_dis", JTCur.color_white, JTCur.color_blue, 0, 0),
     ]
 
     # mq is array of messages, each message
@@ -661,46 +729,47 @@ module JTTui
     # its parents are tried, if object want to filter some message it must call
     # parent for messages it does not want
     # messages are added by addmessage function
-    @mq=[]
+    @mq = []
     # message queue for paint messages is separated for performance reasons
-    @mqpaint=[]
+    @mqpaint = []
     # time events queue
-    @timeq=[]
+    @timeq = []
     # mousecapture is stack of windows that requested to capture mouse
     # current capturing window is last entry
     # if there is no capturing window, mouse events are sent to window
     # which is visible at mouse position
-    @mousecapture=[]
+    @mousecapture = []
     # modalwindows is stack of modal windows
     # mouse events can go only to last entry or its subwindows
-    @modalwindows=[]
-    @abswpos={}
-    @delmh={}
+    @modalwindows = []
+    @abswpos = {}
+    @delmh = {}
     begin
       curinitseq true
       paint!
-      @root=JTTRootWindow.new
-      @activewindow=@root
-      trap('WINCH'){
-	oldstate=Thread.critical
-	Thread.critical=true
-	curdoneseq
-	curinitseq
-	# make root window full redraw
-	addmessage nil, :resized
-	Thread.critical=oldstate
+      @root = JTTRootWindow.new
+      @activewindow = @root
+      trap("WINCH") {
+        oldstate = Thread.critical
+        Thread.critical = true
+        curdoneseq
+        curinitseq
+        # make root window full redraw
+        addmessage nil, :resized
+        Thread.critical = oldstate
       }
       catch :quitrootloop do
-	yield @root if block_given?
-	messageloop
+        yield @root if block_given?
+        messageloop
       end
     ensure
-      trap 'WINCH','DEFAULT'
+      trap "WINCH", "DEFAULT"
       curdoneseq
       JTKey.close_key
     end
   end
-  def curinitseq(suppressdraw=false)
+
+  def curinitseq(suppressdraw = false)
     JTCur.init_screen
     JTCur.cbreak
     JTCur.noecho
@@ -709,15 +778,16 @@ module JTTui
     if JTCur.has_colors?
       # change ^ to false to see black and white mode even on color terminal
       JTCur.start_color
-      @colortui=true
+      @colortui = true
     else
-      @colortui=false
+      @colortui = false
     end
-    @colors.each{|c| c.recompute}
+    @colors.each { |c| c.recompute }
     JTKey.reenablemouse
     addmessage nil, :paint unless suppressdraw
     JTCur.refresh
   end
+
   def curdoneseq
     JTCur.nl
     JTCur.echo
@@ -725,240 +795,262 @@ module JTTui
     JTCur.noraw
     JTCur.close_screen
   end
-  def after(sec,&block)
-    eventtime=Time.now+sec
-    @timeq << [eventtime,block] # FIXME: insert to right place would be better
-    @timeq.sort!{ |a,b| a[0]<=>b[0] }
+
+  def after(sec, &block)
+    eventtime = Time.now + sec
+    @timeq << [eventtime, block] # FIXME: insert to right place would be better
+    @timeq.sort! { |a, b| a[0] <=> b[0] }
   end
+
   def addmessage(*msg)
     # message must be addressed to nil or JTTWindow descendant
-    msg[0]=@root unless msg[0]
-    unless JTTWindow===msg[0]
+    msg[0] = @root unless msg[0]
+    unless JTTWindow === msg[0]
       raise JTTWindowException,
-	"addmessage: invalid target object: #{msg[0].inspect}",caller
+            "addmessage: invalid target object: #{msg[0].inspect}", caller
     end
-    unless Symbol===msg[1]
+    unless Symbol === msg[1]
       raise JTTWindowException,
-	"addmessage: invalid message: #{msg[1].inspect}",caller
+            "addmessage: invalid message: #{msg[1].inspect}", caller
     end
-    if msg[1]==:paint
+    if msg[1] == :paint
       @mqpaint << msg
     else
       @mq << msg
     end
   end
-  def delmessages(target, event=nil)
+
+  def delmessages(target, event = nil)
     if event
-      mwh=@delmh[target]
+      mwh = @delmh[target]
       case mwh
       when NilClass
-	@delmh[target]=[event]
+        @delmh[target] = [event]
       when Array
-	mwh << event
+        mwh << event
       end
     else
-      @delmh[target]=true
+      @delmh[target] = true
     end
   end
+
   def _delmessages
-    mwh=nil
-    [@mq,@mqpaint].each{ |queue|
-      queue.delete_if{ |x|
-	mwh=@delmh[x[0]]
-	case mwh
-	when TrueClass
-	  true
-	when Array
-	  mwh.include? x[1]
-	else
-	  false
-	end
+    mwh = nil
+    [@mq, @mqpaint].each { |queue|
+      queue.delete_if { |x|
+        mwh = @delmh[x[0]]
+        case mwh
+        when TrueClass
+          true
+        when Array
+          mwh.include? x[1]
+        else
+          false
+        end
       }
     }
-    @delmh={}
+    @delmh = {}
   end
+
   def getmessage
     loop {
-      _delmessages if @delmh.length>0
-      msg=@mq.shift
-      msg=@mqpaint.shift unless msg
+      _delmessages if @delmh.length > 0
+      msg = @mq.shift
+      msg = @mqpaint.shift unless msg
       if msg
-	if msg[1]==:paint
-	  msgpar=msg[0].parents_array+[msg[0]]
-	  if @mq.find{|m| m[1]==:paint and msgpar.include? m[0]}
-	    # ignore paint message if parent of its target
-	    # is planned to be painted
-	    next
-	  end
-	end
-	return nil if msg[1]==:quitloop
-	throw :quitrootloop if msg[1]==:quitrootloop
-	return msg
+        if msg[1] == :paint
+          msgpar = msg[0].parents_array + [msg[0]]
+          if @mq.find { |m| m[1] == :paint and msgpar.include? m[0] }
+            # ignore paint message if parent of its target
+            # is planned to be painted
+            next
+          end
+        end
+        return nil if msg[1] == :quitloop
+        throw :quitrootloop if msg[1] == :quitrootloop
+        return msg
       end
       paint!
-      maxtimeout=nil
+      maxtimeout = nil
       unless @timeq.empty?
-	maxtimeout=timeq[0][0]-Time.now
-	maxtimeout=0 if maxtimeout<0
+        maxtimeout = timeq[0][0] - Time.now
+        maxtimeout = 0 if maxtimeout < 0
       end
-      key=JTKey.readkey(maxtimeout) # read keyboard or mouse
-      if key=='' and maxtimeout
-	# if timeout event is ready
-	mytime=Time.now
-	while not @timeq.empty? and @timeq[0][0]<mytime
-	  # uncomment to measure time delay between wanted and
-	  # the time before and after of event
-	  # debug 'pre',Time.now-@timeq[0][0]
-	  @timeq[0][1].call
-	  # debug 'post',Time.now-@timeq[0][0]
-	  @timeq.shift
-	end
-	next
+      key = JTKey.readkey(maxtimeout) # read keyboard or mouse
+      if key == "" and maxtimeout
+        # if timeout event is ready
+        mytime = Time.now
+        while not @timeq.empty? and @timeq[0][0] < mytime
+          # uncomment to measure time delay between wanted and
+          # the time before and after of event
+          # debug 'pre',Time.now-@timeq[0][0]
+          @timeq[0][1].call
+          # debug 'post',Time.now-@timeq[0][0]
+          @timeq.shift
+        end
+        next
       end
-      if Array===key
-	if @mousecapture.empty?
-	  mw=findwindowat key[1],key[2]
-	  unless @modalwindows.empty?
-	    mwl=@modalwindows.last
-	    mwp=mw.parents_array + [mw]
-	    unless mwp.include? mwl
-	      mw=nil # mouse event outside modal window
-	    end
-	  end
-	else
-	  mw=@mousecapture.last
-	end
-	if mw
-	  mwax,mway=abswindowpos mw
-	  return [mw, :mousepress, key[0], key[1]-mwax, key[2]-mway]
-	end # loop otherwise
+      if Array === key
+        if @mousecapture.empty?
+          mw = findwindowat key[1], key[2]
+          unless @modalwindows.empty?
+            mwl = @modalwindows.last
+            mwp = mw.parents_array + [mw]
+            unless mwp.include? mwl
+              mw = nil # mouse event outside modal window
+            end
+          end
+        else
+          mw = @mousecapture.last
+        end
+        if mw
+          mwax, mway = abswindowpos mw
+          return [mw, :mousepress, key[0], key[1] - mwax, key[2] - mway]
+        end # loop otherwise
       else
-	return [activewindow, :keypress, key]
+        return [activewindow, :keypress, key]
       end
     }
   end
+
   def peekmessage
     # you should not use this, if you think there is valid reason for it
     # email to JT, I plan to remove it otherwise
     @mq[0]
   end
+
   def sendmessage(msg)
     unless msg
       raise JTTWindowException,
-	"Invalid message #{msg}", caller
+            "Invalid message #{msg}", caller
     end
-    obj=msg.shift
+    obj = msg.shift
     begin
       if obj.respond_to? msg[0]
-	obj.send(*msg)
-	break
+        obj.send(*msg)
+        break
       end
-      obj=obj.parent
+      obj = obj.parent
     end until obj == nil
   end
+
   def messageloop
-    while msg=getmessage
+    while msg = getmessage
       sendmessage msg
     end
   end
+
   def rootwindow
     @root
   end
+
   def activewindow
-    w=rootwindow
-    w=w.subwindows.last until w.subwindows == []
+    w = rootwindow
+    w = w.subwindows.last until w.subwindows == []
     w
   end
+
   def activewindow=(w)
     while w
       w.up
-      w=w.parent
+      w = w.parent
     end
   end
+
   def addmodalwindow(w)
     @modalwindows << w
   end
+
   def removemodalwindow
     @modalwindows.pop
   end
+
   def capturemouse(w)
     @mousecapture << w
   end
+
   def releasemouse
-    w=@mousecapture.pop
+    w = @mousecapture.pop
   end
+
   # translate window coordinates to
   #  absolute coordinates of top left corner and
   #  coordinates of visible rectange wrt parents
   #  arx,ary,arect=JTTui.abswindowpos self
   # return nil if it is not visible
   def abswindowpos(w)
-    res=@abswpos.fetch w,false
-    return res unless res==false
-    res=_abswindowpos(w)
-    @abswpos[w]=res
+    res = @abswpos.fetch w, false
+    return res unless res == false
+    res = _abswindowpos(w)
+    @abswpos[w] = res
   end
+
   def clearpos(w)
     @abswpos.delete w
   end
+
   def _abswindowpos(w)
-    wlist=[w]
-    while w=w.parent do
+    wlist = [w]
+    while w = w.parent
       wlist << w
     end
-    w=wlist.pop # w is now root window
-    r=w.placement;
-    arx=r.x; ary=r.y
+    w = wlist.pop # w is now root window
+    r = w.placement
+    arx = r.x; ary = r.y
     until wlist.empty?
-      clr=JTRectangle.new(w.clientx+arx, w.clienty+ary, w.clientw, w.clienth)
-      arx=clr.x
-      ary=clr.y
-      r=r.crop clr
-      return nil unless r      
-      w=wlist.pop
-      wr=JTRectangle.new(w.x+arx, w.y+ary, w.w, w.h)
-      arx+=w.x
-      ary+=w.y
-      r=r.crop wr
+      clr = JTRectangle.new(w.clientx + arx, w.clienty + ary, w.clientw, w.clienth)
+      arx = clr.x
+      ary = clr.y
+      r = r.crop clr
+      return nil unless r
+      w = wlist.pop
+      wr = JTRectangle.new(w.x + arx, w.y + ary, w.w, w.h)
+      arx += w.x
+      ary += w.y
+      r = r.crop wr
       return nil unless r
     end
     return arx, ary, r
   end
-  def findwindowat(x,y)
-    w=@root
-    arx,ary=0,0
+
+  def findwindowat(x, y)
+    w = @root
+    arx, ary = 0, 0
     loop {
-      arx+=w.x+w.clientx; ary+=w.y+w.clienty
-      return w if arx+w.clientw<=x
-      return w if ary+w.clienth<=y
-      wlr=w.subwindows.dup.reverse
-      wq=wlr.find{ |wx|
-	wx.placement.include? x-arx,y-ary
+      arx += w.x + w.clientx; ary += w.y + w.clienty
+      return w if arx + w.clientw <= x
+      return w if ary + w.clienth <= y
+      wlr = w.subwindows.dup.reverse
+      wq = wlr.find { |wx|
+        wx.placement.include? x - arx, y - ary
       }
       return w unless wq
-      w=wq
+      w = wq
     }
   end
+
   def findwindowbyname(name)
-    found=nil
-    @root.forallsubwindows{|w|
-      if w.name==name
-	found=w
-	break
+    found = nil
+    @root.forallsubwindows { |w|
+      if w.name == name
+        found = w
+        break
       end
     }
     found
   end
+
   def beep
     JTCur.beep
   end
+
   def paint!
     JTCur.refresh
   end
+
   def forcerepaint!
     JTCur.clear
     @root.paint
     JTCur.refresh
   end
 end
-

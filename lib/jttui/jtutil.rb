@@ -62,7 +62,6 @@
 #
 # end of license
 
-
 # Utilities:
 #
 # enlarge String class with prefix? and suffix? tests
@@ -74,10 +73,11 @@
 #
 class String
   def prefix?(p)
-    index(p)==0
+    index(p) == 0
   end
+
   def suffix?(s)
-    part=self[-s.length..-1]
+    part = self[-s.length..-1]
     part == s or s.length == 0
   end
 end
@@ -96,12 +96,12 @@ class Range
   def clip(value)
     return self.begin if value < self.begin
     if exclude_end?
-      return self.end-1 if value >= self.end
+      return self.end - 1 if value >= self.end
     else
-      return self.end  if value > self.end
+      return self.end if value > self.end
     end
     value
-			# btw: methods begin and end break formating in emacs
+    # btw: methods begin and end break formating in emacs
   end
 end
 
@@ -121,17 +121,17 @@ class Array
   # yes, they are not fast, but I would use C if I want speed
 
   # foldr start from right: [1,2,3].foldr(4) &f => f(1,f(2,f(3,4)))
-  def foldr(right,&block)
-    self.reverse_each{|elt| right=block.call(elt,right)}
+  def foldr(right, &block)
+    self.reverse_each { |elt| right = block.call(elt, right) }
     right
   end
+
   # foldl start from left: [1,2,3].foldr(0) &f => f(f(f(0,1),2),3)
-  def foldl(left,&block)
-    self.each{|elt| left=block.call(left,elt)}
+  def foldl(left, &block)
+    self.each { |elt| left = block.call(left, elt) }
     left
   end
 end
-
 
 module DelayedNotify
   # This common pattern found in jttuistd.rb
@@ -164,46 +164,48 @@ module DelayedNotify
   #
   def delayednotify_init(&block)
     # set update block
-    @delayednotify_blocked=0
-    @delayednotify_block=block
+    @delayednotify_blocked = 0
+    @delayednotify_block = block
   end
+
   def notify
     # notify update method unless blocked
     if @delayednotify_blocked == 0
       @delayednotify_block.call(self) if @delayednotify_block
     end
   end
+
   def delayednotify(&block)
     # run block with disabled update, then enable update and notify
-    @delayednotify_blocked+=1
+    @delayednotify_blocked += 1
     yield(self)
   ensure
-    @delayednotify_blocked-=1
+    @delayednotify_blocked -= 1
     notify
   end
+
   def disablednotify(&block)
     # run block with disabled update, then enable update without notify
-    @delayednotify_blocked+=1
+    @delayednotify_blocked += 1
     yield(self)
   ensure
-    @delayednotify_blocked-=1
+    @delayednotify_blocked -= 1
   end
 end
-
 
 # DEBUGING SUPPORT
 # change output file or device as you wish,
 # I prefer debug.log file or /dev/tty3 (on tty1 emacs, on tty2 tested program)
 #
 def debug_output_file
-  'debug.log'
+  "debug.log"
 end
-  
+
 def debug(*p)
-  File.open(debug_output_file,"a") do |f|
-    f.write caller[2]+"=>> " # there is [0]=open [1]=debug [2]=real caller
-    p.each_index{ |i|
-      f.write ", " if i>0
+  File.open(debug_output_file, "a") do |f|
+    f.write caller[2] + "=>> " # there is [0]=open [1]=debug [2]=real caller
+    p.each_index { |i|
+      f.write ", " if i > 0
       f.write p[i].inspect
     }
     f.write "\r\n" # \r\n" # adjust as you need
@@ -211,4 +213,4 @@ def debug(*p)
   end
 end
 
-debug 'NEW DEBUG SESSION', Time.now.to_s if test(?e,debug_output_file)
+debug "NEW DEBUG SESSION", Time.now.to_s if test(?e, debug_output_file)
