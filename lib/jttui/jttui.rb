@@ -406,7 +406,7 @@ class JTTWindow
   end
   def color=(v); @color=v; addmessage self, :paint end
   def argfixpos(v)
-    unless v.kind_of?(Fixnum) and v >= 0
+    unless v.kind_of?(Integer) and v >= 0
       raise JTTWindowException,
 	"Argument must be positive Fixnum", caller[1..-1]
     end
