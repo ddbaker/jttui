@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Jakub Travnik's textmode user interface
 # classes for dealing with basics of text user interface
@@ -269,7 +270,7 @@ class JTTWindow
     return unless @visible
     return if @closed
     begin
-      paintcontext {|pc| self.paintself pc}
+      paintcontext {|pc| self.paintself pc }
     rescue # FIXME Object ??
       debug $!
       raise
@@ -285,11 +286,11 @@ class JTTWindow
     delmessages self,:paint
     # enable this to see how windows are painted:
     #
-    #pc.fillrect 0, 0, w, h, ?\s|JTTui.color_inactive_cur
+    #pc.fillrect 0, 0, w, h, ?\s.ord|JTTui.color_inactive_cur
     #JTCur.refresh
     #sleep 0.2
     #
-    pc.fillrect 0, 0, w, h, ?\s|@color
+    pc.fillrect 0, 0, w, h, ?\s.ord|@color
     pc.move 0,0
   end
   # associated code block will get paint context object
@@ -516,12 +517,12 @@ class JTTPaintContext
     addstr sa.shift
     while sae=sa.shift
       if sae==''
-	addchar(?_|(drawactive ? color2 : color1))
+  addchar(?_.ord|(drawactive ? color2 : color1))
 	JTCur.attrset drawactive ? color2 : color1
 	addstr sa.shift
       else
 	JTCur.attrset drawactive ? color4 : color3
-	addchar(sae[0]) if sae[0]
+  addchar(sae[0].ord) if sae[0]
 	JTCur.attrset drawactive ? color2 : color1
 	addstr sae[1..-1]
       end

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 #
 # maybe some might want better precision

@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 
 # version 0.1.0
 
@@ -14,6 +15,7 @@
 # using JTTui or user interface generally. It is easily maintainable.
 # Calculator class can be tested without UI just from irb.
 #
+$: << File.dirname(__FILE__)
 
 require 'addlocalpath'
 require 'jttui/jttui'
@@ -45,8 +47,9 @@ class CalcNumber
       end
       pointbase=nil; number=nil; exponent=nil; sign=nil; expsign=nil
       haveexponent=false
+
       v.each_byte{|b|
-	if b==?+
+  if b==?+.ord
 	  if exponent
 	    raise -'too many signs in exponent' if expsign
 	    raise -'exponent have embedded sign' if haveexponent
@@ -56,7 +59,7 @@ class CalcNumber
 	    raise -'mantisa have embedded sign' if number
 	    sign=1
 	  end
-	elsif b==?-
+  elsif b==?-.ord
 	  if exponent
 	    raise -'too many signs in exponent' if expsign
 	    raise -'exponent have embedded sign' if haveexponent
@@ -66,12 +69,12 @@ class CalcNumber
 	    raise -'mantisa have embedded sign' if number
 	    sign=-1
 	  end
-	elsif b==?.
+  elsif b==?..ord
 	  raise -'decimal point cannot be in exponent' if exponent
 	  raise -'too many decimal points' if pointbase
 	  pointbase=1
 	  number=0 unless number
-	elsif b==?E
+  elsif b==?E.ord
 	  raise -'too many exponent signs' if exponent
 	  exponent=0
 	elsif exponent
@@ -104,7 +107,7 @@ class CalcNumber
   def getdigit(code,base)
     # FIXME: index is slow, use inverse of digits
     @@digits='0123456789abcdef' unless defined? @@digits
-    d=@@digits.index code
+    d=@@digits.index code.chr
     d ? (d<base ? d : nil) : nil
   end
   def to_s(base=10)
@@ -178,19 +181,19 @@ class CalcNumber
 	ms[idx]=@@digits[d+1,1]
       else
 	ms='1'+ms; e+=1
-	break
+	#break
       end
     end
     if e>=0 and e<14
       len=ms.length
       ms << '0'*(e-len+1) unless len>e
       ms[e,0]='.'
-      ms.gsub!(/(\..*?)0+$/,'\1') # clear tail zeroes
-      ms.gsub!(/\.$/,'')          # remove tail point if it is there
+      ms.gsub!(/(\..*?)0+$/n,'\1') # clear tail zeroes
+      ms.gsub!(/\.$/n,'')          # remove tail point if it is there
       ms=s+ms
     else
       ms[1,0]='.'
-      ms.gsub!(/(\..*?)0+$/,'\1') # clear tail zeroes
+      ms.gsub!(/(\..*?)0+$/n,'\1') # clear tail zeroes
       exp=''; e-=1
       if e<0
 	exps='-'

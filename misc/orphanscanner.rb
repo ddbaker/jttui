@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 #
 # This is public domain, you may use it freely.
 # There is no warranty of any kind that it will be working as described.

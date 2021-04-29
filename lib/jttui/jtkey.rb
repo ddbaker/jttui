@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # jtkey.rb - terminal keys reader, part of jttui
 # classes for dealing with keys and xterm mouse or gpm (in jtgpm.rb)
@@ -121,7 +122,9 @@ module JTKey
       end
       if @inputkeybuff.prefix? "\e[M" # xterm mouse
 	if @inputkeybuff.length>=6 # complete
-	  b=@inputkeybuff[3]-31; x=@inputkeybuff[4]-33; y=@inputkeybuff[5]-33
+    b=@inputkeybuff[3].force_encoding('ASCII-8BIT').ord-31
+    x=@inputkeybuff[4].force_encoding('ASCII-8BIT').ord-33
+    y=@inputkeybuff[5].force_encoding('ASCII-8BIT').ord-33
 	  @inputkeybuff=""
 	  return [b,x,y]
 	end
@@ -158,7 +161,7 @@ module JTKey
     print "note: f1-f10 keys will be also accessible as ESC digit\n"
     print "Adding standard keys ...\n"
     @keyhash[0.chr]='C-@' # on some keyboards this is C-SPC or C-`
-    (1..26).each {|x| @keyhash[x.chr]='C-'+(x+?a-1).chr} 
+    (1..26).each {|x| @keyhash[x.chr]= 'C-'+(x+?a.ord-1).chr} 
     # control keys i.e.'C-x'
     #27 is esc
     @keyhash[28.chr]='C-\\' # signals bust be turned of for this (raw mode)

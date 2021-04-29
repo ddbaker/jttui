@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'mkmf'
 
 dir_config('curses')

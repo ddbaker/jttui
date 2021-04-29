@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #/usr/bin/env ruby -w
 
 # we need to know how many digits to display, this is base dependent

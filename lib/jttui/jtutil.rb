@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Jakub Travnik's utility functions, used by jttui and jc file commander
 #

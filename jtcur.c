@@ -49,7 +49,7 @@
 
 #include "stdio.h"
 #include "ruby.h"
-#include "rubyio.h"
+#include "ruby/io.h"
 
 #if HAVE_TTYNAME
 # include <unistd.h>
@@ -399,6 +399,8 @@ static int getacs(c)
     case 0x1e: return ACS_URCORNER| attr; /*   +   upper right-hand corner */
     case 0x1f: return ACS_VLINE   | attr; /*   |   vertical line */
     }
+
+    return ACS_PLMINUS | attr; /*   #   plus/minus */
 }
 
 /* def addch(ch) */
@@ -406,7 +408,7 @@ static VALUE jtcur_addch(obj, ch)
     VALUE obj;
     VALUE ch;
 {
-    chtype cc;
+    int cc;
     if((jtcur_x<jtcur_ex) && (jtcur_x>=jtcur_sx)
 	&& (jtcur_y<jtcur_ey) && (jtcur_y>=jtcur_sy)) {
 	cc=NUM2INT(ch);
@@ -453,7 +455,7 @@ static VALUE jtcur_addstra(obj, vstr, vattr)
     VALUE vattr;
 {
     if (!NIL_P(vstr))
-	_jtcur_addstra(RSTRING(vstr)->ptr,RSTRING(vstr)->len, NUM2INT(vattr));
+	_jtcur_addstra(RSTRING_PTR(vstr),RSTRING_LEN(vstr), NUM2INT(vattr));
     return Qnil;
 }
 
@@ -463,7 +465,7 @@ static VALUE jtcur_addstr(obj, vstr)
     VALUE vstr;
 {
     if (!NIL_P(vstr))
-	_jtcur_addstra(RSTRING(vstr)->ptr,RSTRING(vstr)->len, 0);
+	_jtcur_addstra(RSTRING_PTR(vstr),RSTRING_LEN(vstr), 0);
     return Qnil;
 }
 

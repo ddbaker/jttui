@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # this test example for DelayedNotify pattern from jtutil.rb
 #

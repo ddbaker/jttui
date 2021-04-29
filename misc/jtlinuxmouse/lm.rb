@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 # this works but cannot be run from midnight commander (when using gpm)
 # did you noticed that even mc run from mc don't have working mouse?

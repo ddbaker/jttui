@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Jakub Travnik's textmode user interface
 # jtgpm.rb - gpm mouse reader, part of jttui

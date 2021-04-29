@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 
 # version 0.1.0
 
@@ -6,6 +7,7 @@
 # Jakub Travnik's tui example
 # This example does not use library of standard widgets (jttuistd.rb).
 #
+$: << File.dirname(__FILE__)
 
 require 'addlocalpath'
 require 'jttui/jttui'

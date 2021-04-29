@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Jakub Travnik's textmode user interface
 # standard window objects
@@ -300,10 +301,10 @@ module JTWHilightletter
   def hl_scan(text)
     # scan text for first letter, return nil if none
     # it is letter after _ but not __
-    fhl=/[^_]_([^_])|\A_([^_])/.match text
+    fhl=/[^_]_([^_])|\A_([^_])/n.match text
     return nil unless fhl
     fhl=fhl[1] ? fhl[1] : fhl[2]
-    fhl=~/[a-zA-Z0-9~`!@\#$%^&*()+=\/.\\-]/ ? fhl.downcase : nil
+    fhl=~/[a-zA-Z0-9~`!@\#$%^&*()+=\/.\\-]/n ? fhl.downcase : nil
   end
   def hl_newfromtext(text)
     # remove all registered letters and try to set new one if exist
@@ -316,14 +317,14 @@ module JTWHilightletter
     count_=0; count__=0
     i=0
     loop do
-      i=text.index(/[^_]_[^_]|\A_[^_]/,i)
+      i=text.index(/[^_]_[^_]|\A_[^_]/n,i)
       break unless i
       count_+=1
       i+=1
     end
     i=0
     loop do
-      i=text.index(/__/,i)
+      i=text.index(/__/n,i)
       break unless i
       count__+=1
       i+=2
@@ -349,11 +350,11 @@ class JTTWLabel < JTTWidget
     @caption=params.pop # last parameter is caption
     if @@wordcharmap==''
       @@wordcharmap="\0"*256
-      (?a..?z).each{|x| @@wordcharmap[x]=1}
-      (?A..?Z).each{|x| @@wordcharmap[x]=1}
-      (?0..?9).each{|x| @@wordcharmap[x]=1}
-      (128..255).each{|x| @@wordcharmap[x]=1}
-      @@wordcharmap[?_]=1
+      (?a.ord..?z.ord).each{|x| @@wordcharmap[x]="1"}
+      (?A.ord..?Z.ord).each{|x| @@wordcharmap[x]="1"}
+      (?0.ord..?9.ord).each{|x| @@wordcharmap[x]="1"}
+      (128..255).each{|x| @@wordcharmap[x]="1"}
+      @@wordcharmap[?_.ord]="1"
     end
     super(*params,&block) # breakwords is called here from super->resizedself
     @hilightaction=@block # hilight letter action block
@@ -398,19 +399,19 @@ class JTTWLabel < JTTWidget
 	  @breaklines << textline[ptr,maxwidth]
 	  break
 	end
-	unless @@wordcharmap[textline[ptrend]]==1
+	unless @@wordcharmap[textline[ptrend]]=="1"
 	  # no word at ptrend, breaking
 	  @breaklines << textline[ptr...ptrend]
-	  ptrend+=1 if textline[ptrend]==?\s
+    ptrend+=1 if textline[ptrend]==?\s.ord
 	  ptr=ptrend
 	  next
 	end
 	wordhead=ptrend; wordtail=ptrend
-	while wordhead>=ptr and @@wordcharmap[textline[wordhead]]==1
+	while wordhead>=ptr and @@wordcharmap[textline[wordhead]]=="1"
 	  wordhead-=1
 	end
 	wordhead+=1
-	while wordtail<tllength and @@wordcharmap[textline[wordtail]]==1
+	while wordtail<tllength and @@wordcharmap[textline[wordtail]]=="1"
 	  wordtail+=1
 	end
 	wlength=wordtail-wordhead
@@ -426,7 +427,7 @@ class JTTWLabel < JTTWidget
 	  @breaklines << textline[ptr...ptrend]
 	  ptr=ptrend
 	else
-	  if wordhead>ptr and textline[wordhead-1]==?\s
+    if wordhead>ptr and textline[wordhead-1]==?\s.ord
 	    @breaklines << textline[ptr...wordhead-1]
 	  else
 	    @breaklines << textline[ptr...wordhead]
@@ -846,7 +847,7 @@ class JTEditor
   end
   def movetosow # start of word
     return @cursor=0 if @cursor<2
-    pos=@text.rindex(/[^a-zA-Z0-9\200-\377][a-zA-Z0-9\200-\377]/, @cursor-2)
+    pos=@text.rindex(/[^a-zA-Z0-9\200-\377][a-zA-Z0-9\200-\377]/n, @cursor-2)
     if pos
       @cursor=pos+1
     else
@@ -855,7 +856,7 @@ class JTEditor
     notify; @last=:movetosow
   end
   def movetoeow # end of word
-    pos=@text.index(/[a-zA-Z0-9\200-\377][^a-zA-Z0-9\200-\377]/, @cursor)
+    pos=@text.index(/[a-zA-Z0-9\200-\377][^a-zA-Z0-9\200-\377]/n, @cursor)
     if pos
       @cursor=pos+1
     else
@@ -984,7 +985,7 @@ class JTEditor
       when 'M-q' then @quoting=QUOTE_HEX
       when 'C-t' then transpose
       else
-	if key.length==1 and key[0]>=32
+        if key.length==1 and key[0].ord>=32
 	  typestring key
 	  return true
 	end
@@ -1055,17 +1056,17 @@ class JTTWEditline < JTTWFocusable
   end
   def enabled=(v); @enabled=v; addmessage self, :paint end
   def displayashex?(char)
-    return true if char<32
-    return true if char==127
+    return true if char.ord<32
+    return true if char.ord==127
     false
   end
   def getcharwidth(char) # char is one character String
     displayashex?(char) ? 4 : 1
   end
   def getcharwidthat(pos) # if character is out of range, 1 is returned
-      char=@editor.text[pos]
-      char=32 unless char
-      getcharwidth(char)
+    char=@editor.text[pos]
+    char=32 unless char
+    getcharwidth(char)
   end
   def formatasline(lastviewstart, width)
     len=@editor.text.length
@@ -1119,7 +1120,7 @@ class JTTWEditline < JTTWFocusable
     editwidth=self.w-2
     relcursor, @viewstart, leftcont, rightcont=
       formatasline @viewstart, editwidth
-    pc.addchar((leftcont ? ?< : ?\s)|(focused? ? JTTui.color_edit_hi : 0))
+    pc.addchar((leftcont ? ?<.ord : ?\s.ord)|(focused? ? JTTui.color_edit_hi : 0))
     viewptr=@viewstart
     viewlen=0
     marked=@editor.mark ? [@editor.mark,@editor.cursor].sort : [-1,-1]
@@ -1134,11 +1135,11 @@ class JTTWEditline < JTTWFocusable
       end
       char=@editor.text[viewptr]
       char=@displaytransformer.call(char) if @displaytransformer
-      char=?\s unless char
+      char=?\s.ord unless char
       if displayashex?(char)
 	hexarr=char.divmod 16
 	hextab='0123456789ABCDEF'
-	pc.addchar ?<|colorB
+  pc.addchar ?<.ord|colorB
 	viewlen+=1
 	break unless viewlen<editwidth
 	pc.addchar hextab[hexarr[0]]|colorB
@@ -1147,13 +1148,13 @@ class JTTWEditline < JTTWFocusable
 	pc.addchar hextab[hexarr[1]]|colorB
 	viewlen+=1
 	break unless viewlen<editwidth
-	pc.addchar ?>|colorB
+  pc.addchar ?>.ord|colorB
       else
-	  pc.addchar char|colorA
+        pc.addchar char.ord|colorA
       end
       viewlen+=1; viewptr+=1
     end
-    pc.addchar((rightcont ? ?> : ?\s)|(focused? ? JTTui.color_edit_hi : 0))
+    pc.addchar((rightcont ? ?>.ord : ?\s.ord)|(focused? ? JTTui.color_edit_hi : 0))
     pc.move relcursor+1,0
     pc.setcursor
   end
@@ -1185,7 +1186,7 @@ end
 
 class JTTWEditpass < JTTWEditline
   def initialize(*params,&block)
-    @displaytransformer=proc{ |char| char ? ?* : ?\s }
+    @displaytransformer=proc{ |char| char ? ?*.ord : ?\s.ord }
     super
   end
 end
@@ -1505,7 +1506,7 @@ class JTTWList < JTTWFocusable
     # if item height is larger than area of whole window, rest wont be visible
     pc.attrset( (hilighted && focused)? @color_active : @color_basic)
     cx,cy,cw,ch=pc.clippingrectangle
-    pc.fillrect cx, cy, cw, ch, ?\s
+    pc.fillrect cx, cy, cw, ch, ?\s.ord
     pc.move 0,0
     pc.setcursor if hilighted
   end
@@ -2396,7 +2397,7 @@ class JTTWMessagebox
   end
   def execute(thetext=@text)
     @result=-1
-    mesdlg=JTTDialog.new(JTTui.rootwindow, 'Messagebox Window '+id.to_s,
+    mesdlg=JTTDialog.new(JTTui.rootwindow, 'Messagebox Window '+object_id.to_s,
 			 0,0,0,0,'')
     mesdlg.align=JTTWindow::ALIGN_CENTER
     mesdlg.up
@@ -2413,7 +2414,7 @@ class JTTWMessagebox
     }
     wsize+=2
     wsize=[wsize,@minwidth].max
-    label=JTTWLabel.new(mesdlg, 'Messagebox Label '+id.to_s,
+    label=JTTWLabel.new(mesdlg, 'Messagebox Label '+object_id.to_s,
 			1, 1, wsize-4, 1, thetext)
     hlsize=[label.breaklines.length, mesdlg.parent.h-5].min
     label.h=hlsize

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # this is contribution from Steven Grady
 # it is vertical messagebox widget

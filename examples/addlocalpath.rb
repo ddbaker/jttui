@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # local library path module
 # this module ensures that all examples try loading JTTui
 # and related libraries from paths in JTTui source tree

@@ -1,10 +1,12 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 
 #
 # Jakub Travnik's textmode user interface
 #
 
 # language localization - example
+$: << File.dirname(__FILE__)
 
 require 'addlocalpath'
 require 'jttui/jtloc'
