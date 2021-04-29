@@ -20,7 +20,7 @@ class JTThww < JTTWindow
   end
   def paintself(pc)
     super
-    pc.fillrect 0, 0, w, h, ?\s|JTTui.color_inactive_hi
+    pc.fillrect 0, 0, w, h, ?\s.ord|JTTui.color_inactive_hi
     pc.windowframe self,JTTui.color_basic
     pc.move 2,1
     pc.addstra "#{x} #{y} #{w} #{h}", JTTui.color_active_hi
@@ -36,7 +36,7 @@ class JTThww < JTTWindow
   end
   def keypress(key)
     @lastkey=key
-    @lastkey='key nr.'+key[0].to_s if key[0]<32
+    @lastkey='key nr.'+key[0].to_s if key[0].ord<32
     addmessage self, :paint
     case key
     when 'up'
@@ -88,7 +88,7 @@ JTTui.run do |root|
   cw=JTTWindow.new(root, 'Container Window', 7, 8, 60, 15)
   def cw.paintself(pc)
     super
-    pc.fillrect 0, 0, w, h, ?\s|JTTui.color_active_hi
+    pc.fillrect 0, 0, w, h, ?\s.ord|JTTui.color_active_hi
     pc.windowframe self,JTTui.color_basic
     pc.move 1,1
     pc.addstra "#{x} #{y} #{w} #{h}", JTTui.color_active
@@ -96,7 +96,7 @@ JTTui.run do |root|
   cw2=JTTWindow.new(cw, 'Container Window2', 2, 2, 40, 10)
   def cw2.paintself(pc)
     super
-    pc.fillrect 0, 0, w, h, ?\s|JTTui.color_active_hi
+    pc.fillrect 0, 0, w, h, ?\s.ord|JTTui.color_active_hi
     pc.windowframe self,JTTui.color_basic
     pc.move 1,1
     pc.addstra "#{x} #{y} #{w} #{h}", JTTui.color_active

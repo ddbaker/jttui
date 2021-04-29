@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# -*- coding: utf-8 -*-
+# -*- coding: iso-8859-2 -*-
 
 # version 0.1.0
 
@@ -7,6 +7,7 @@
 # this will display acs characters
 #
 # note: some or all may not appear correctly on some terminals
+$: << File.dirname(__FILE__)
 
 require 'addlocalpath'
 require 'jtcur'
@@ -20,7 +21,7 @@ noecho
 nonl
 
 y=0
-JTCur.methods.grep(/acs_/) do |m|
+JTCur.methods.grep(/acs_/n) do |m|
   move((y % 3)*20,y/3)
   y+=1
   addstr "#{m}: "
