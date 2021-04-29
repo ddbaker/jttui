@@ -16,7 +16,7 @@
 #
 
 # add relatice path ../lib/ to search path
-$:.unshift( File.join( '..', 'lib' ))
+$:.unshift(File.join("..", "lib"))
 
 # add relatice path ../ to search path
-$:.unshift( File.join( '..', '' ))
+$:.unshift(File.join("..", ""))
