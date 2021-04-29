@@ -6,7 +6,7 @@
 #
 # This file is distributed under this license:
 # Jakub Travnik's textmode user interface (JTTui) is copyrighted free software
-# by Jakub Travnik <J.Travnik@sh.cvut.cz> or <jakub.travnik@rocketmail.com>.
+# by Jakub Travnik 
 # You can redistribute it and/or modify it under either the terms of the GPL
 # (see COPYING.GPL file), or the conditions below:
 #

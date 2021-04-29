@@ -17,7 +17,7 @@
  * (IMHO it exist just because C programers don't have power
  *  of ruby to make it (or better) on their own :-))
  *
- * by Jakub Travnik <J.Travnik@sh.cvut.cz> or <jakub.travnik@rocketmail.com>
+ * by Jakub Travnik 
  *
  * based on curses.c ruby library (from ruby 1.6.4 source distribution
  * in etc/curses/)

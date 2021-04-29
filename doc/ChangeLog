@@ -1,14 +1,14 @@
-2002-05-08  Jakub Travnik  <j.travnik@sh.cvut.cz>
+2002-05-08  Jakub Travnik
 
 	* version 0.11.0 released
 	* cosmetic changes
 
-2002-04-18  Jakub Travnik  <j.travnik@sh.cvut.cz>
+2002-04-18  Jakub Travnik
 
 	* jttuistd.rb added autowrap attribute to JTTWLabel, default is
 	to wrap, but it can be disabled by label.autowrap=false
 
-2002-04-14  Jakub Travnik  <j.travnik@sh.cvut.cz>
+2002-04-14  Jakub Travnik
 
 	* examples/addlocalpath.rb added, it contains code that modifies
 	library search path to include relative directories in JTTui source
@@ -16,7 +16,7 @@
 	* examples/example*.rb modified to require 'addlocalpath'
 	* doc/PLATFORMS updated
 
-2002-04-07  Jakub Travnik  <j.travnik@sh.cvut.cz>
+2002-04-07  Jakub Travnik
 
 	* tree reorganized, generated make file can install whole jttui
 	user programs have to require 'jttui/jtsomething' except for jtcur
@@ -27,21 +27,21 @@
 	* scrollbar fill changed to hline and vline from : (suggested by
 	Tomas Borland Valenta)
 
-2002-03-28  Jakub Travnik  <j.travnik@sh.cvut.cz>
+2002-03-28  Jakub Travnik
 
 	* jttui.rb added attr_reader for name variable in class JTTColor
 
-2002-03-05  Jakub Travnik  <j.travnik@sh.cvut.cz>
+2002-03-05  Jakub Travnik
 
 	* doc/TODO, doc/DONE files added
 
-2002-02-26  Jakub Travnik  <j.travnik@sh.cvut.cz>
+2002-02-26  Jakub Travnik
 
 	* version 0.10.3 released
 	* jttuistd.rb JTTWScrollbox fixed to redraw properly when
 	virtual window is smaller than physical.
 
-2002-02-15  Jakub Travnik  <j.travnik@sh.cvut.cz>
+2002-02-15  Jakub Travnik
 
 	* jtgpm.rb gpm mouse now works even when consoles does not contain
 	'tty' substring in name (such as '/dev/vc/1'). Original libgpm
@@ -53,7 +53,7 @@
 	* jtgpm.rb, jtcur.c tty program dependency removed, native ttyname
 	call is implemented in jtcur.c now
 
-2001-12-18  Jakub Travnik  <j.travnik@sh.cvut.cz>
+2001-12-18  Jakub Travnik
 
 	* version 0.10.2
 	* jttuistd.rb JTTDialog#settab now throws InvalidTabWindow instead
@@ -63,17 +63,17 @@
 	* patch for ruby select in doc/BUGS is deprecated, it was simple
 	but more complete patch was developed with matz
 
-2001-11-25  Jakub Travnik  <j.travnik@sh.cvut.cz>
+2001-11-25  Jakub Travnik
 
 	* patch for ruby select added to doc/BUGS
 	* version 0.10.1 released
 
-2001-11-24  Jakub Travnik  <j.travnik@sh.cvut.cz>
+2001-11-24  Jakub Travnik
 
 	* jttuistd.rb JTTDialog.keypress, reordered actions for default
 	and cancel buttons (settab is called before action)
 
-2001-11-23  Jakub Travnik  <j.travnik@sh.cvut.cz>
+2001-11-23  Jakub Travnik
 
 	* jttuistd.rb JTTWTree node can be selected using select_node method
 	* jttui.rb catch of :quitrootloop in JTTui.run moved to include
@@ -83,7 +83,7 @@
 	* jttuistd.rb JTTWEditline modified to support new class JTTWEditpass
 	* jttui.rb JTTui.forcerepaint! added
 
-2001-11-21 Jakub Travnik  <j.travnik@sh.cvut.cz>	
+2001-11-21 Jakub Travnik	
 
 	* example-jttuistd-4-trees.rb removed unnecessary object tr1_root
 	* example-jttuistd-1-simple.rb corrected test messagebox to have
@@ -93,12 +93,12 @@
 	* jttuistd.rb JTTWList (and descendants such as tree) now have
 	color_basic and color_active attributes to modify colors
 
-2001-11-01 Jakub Travnik  <j.travnik@sh.cvut.cz>
+2001-11-01 Jakub Travnik
 
 	* starting-guide.txt misspelling in documentation of 'proc'
 	with 'Proc' corrected
 	
-2001-10-31 Jakub Travnik  <j.travnik@sh.cvut.cz>
+2001-10-31 Jakub Travnik
 
 	* jttui.rb version 0.10.0 released
 

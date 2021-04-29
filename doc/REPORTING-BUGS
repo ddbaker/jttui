@@ -33,7 +33,8 @@ otherwise try your own method that apply to your system.
    error output to file and include it:
   $ ruby ./someexample.rb 2>my_error_message
 
-Send it to J.Travnik@sh.cvut.cz WITH SUBJECT CONTAINING WORD 'JTTUI',
+Send it to donarno dot dan dot baker plus github at gmail dot com
+WITH SUBJECT CONTAINING WORD 'JTTUI',
 otherwise I or my SPAM filter (currently I don't have it but due to increasing
 amount of SPAM I get I plan to install it) may throw it away.
 You have been warned.
