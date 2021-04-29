@@ -64,98 +64,194 @@ int jtcur_x, jtcur_y; /* current coordinates */
 /*-------------------------- module JTCur --------------------------*/
 
 
+#ifdef ACS_BLOCK
+#undef ACS_BLOCK
+#endif
 #ifndef ACS_BLOCK
 #define ACS_BLOCK '#'
+#endif
+#ifdef ACS_BOARD
+#undef ACS_BOARD
 #endif
 #ifndef ACS_BOARD
 #define ACS_BOARD '#'
 #endif
+#ifdef ACS_BTEE
+#undef ACS_BTEE
+#endif
 #ifndef ACS_BTEE
 #define ACS_BTEE '+'
+#endif
+#ifdef ACS_BULLET
+#undef ACS_BULLET
 #endif
 #ifndef ACS_BULLET
 #define ACS_BULLET 'o'
 #endif
+#ifdef ACS_CKBOARD
+#undef ACS_CKBOARD
+#endif
 #ifndef ACS_CKBOARD
 #define ACS_CKBOARD ':'
+#endif
+#ifdef ACS_DARROW
+#undef ACS_DARROW
 #endif
 #ifndef ACS_DARROW
 #define ACS_DARROW 'v'
 #endif
+#ifdef ACS_DEGREE
+#undef ACS_DEGREE
+#endif
 #ifndef ACS_DEGREE
 #define ACS_DEGREE '\''
+#endif
+#ifdef ACS_DIAMOND
+#undef ACS_DIAMOND
 #endif
 #ifndef ACS_DIAMOND
 #define ACS_DIAMOND '+'
 #endif
+#ifdef ACS_GEQUAL
+#undef ACS_GEQUAL
+#endif
 #ifndef ACS_GEQUAL
 #define ACS_GEQUAL '>'
+#endif
+#ifdef ACS_HLINE
+#undef ACS_HLINE
 #endif
 #ifndef ACS_HLINE
 #define ACS_HLINE '-'
 #endif
+#ifdef ACS_LANTERN
+#undef ACS_LANTERN
+#endif
 #ifndef ACS_LANTERN
 #define ACS_LANTERN '#'
+#endif
+#ifdef ACS_LARROW
+#undef ACS_LARROW
 #endif
 #ifndef ACS_LARROW
 #define ACS_LARROW '<'
 #endif
+#ifdef ACS_LEQUAL
+#undef ACS_LEQUAL
+#endif
 #ifndef ACS_LEQUAL
 #define ACS_LEQUAL '<'
+#endif
+#ifdef ACS_LLCORNER
+#undef ACS_LLCORNER
 #endif
 #ifndef ACS_LLCORNER
 #define ACS_LLCORNER '+'
 #endif
+#ifdef ACS_LRCORNER
+#undef ACS_LRCORNER
+#endif
 #ifndef ACS_LRCORNER
 #define ACS_LRCORNER '+'
+#endif
+#ifdef ACS_LTEE
+#undef ACS_LTEE
 #endif
 #ifndef ACS_LTEE
 #define ACS_LTEE '+'
 #endif
+#ifdef ACS_NEQUAL
+#undef ACS_NEQUAL
+#endif
 #ifndef ACS_NEQUAL
 #define ACS_NEQUAL '!'
+#endif
+#ifdef ACS_PI
+#undef ACS_PI
 #endif
 #ifndef ACS_PI
 #define ACS_PI '*'
 #endif
+#ifdef ACS_PLMINUS
+#undef ACS_PLMINUS
+#endif
 #ifndef ACS_PLMINUS
 #define ACS_PLMINUS '#'
+#endif
+#ifdef ACS_PLUS
+#undef ACS_PLUS
 #endif
 #ifndef ACS_PLUS
 #define ACS_PLUS '+'
 #endif
+#ifdef ACS_RARROW
+#undef ACS_RARROW
+#endif
 #ifndef ACS_RARROW
 #define ACS_RARROW '>'
+#endif
+#ifdef ACS_RTEE
+#undef ACS_RTEE
 #endif
 #ifndef ACS_RTEE
 #define ACS_RTEE '+'
 #endif
+#ifdef ACS_S1
+#undef ACS_S1
+#endif
 #ifndef ACS_S1
 #define ACS_S1 '-'
+#endif
+#ifdef ACS_S3
+#undef ACS_S3
 #endif
 #ifndef ACS_S3
 #define ACS_S3 '-'
 #endif
+#ifdef ACS_S7
+#undef ACS_S7
+#endif
 #ifndef ACS_S7
 #define ACS_S7 '-'
+#endif
+#ifdef ACS_S9
+#undef ACS_S9
 #endif
 #ifndef ACS_S9
 #define ACS_S9 '_'
 #endif
+#ifdef ACS_STERLING
+#undef ACS_STERLING
+#endif
 #ifndef ACS_STERLING
 #define ACS_STERLING 'f'
+#endif
+#ifdef ACS_TTEE
+#undef ACS_TTEE
 #endif
 #ifndef ACS_TTEE
 #define ACS_TTEE '+'
 #endif
+#ifdef ACS_UARROW
+#undef ACS_UARROW
+#endif
 #ifndef ACS_UARROW
 #define ACS_UARROW '^'
+#endif
+#ifdef ACS_ULCORNER
+#undef ACS_ULCORNER
 #endif
 #ifndef ACS_ULCORNER
 #define ACS_ULCORNER '+'
 #endif
+#ifdef ACS_URCORNER
+#undef ACS_URCORNER
+#endif
 #ifndef ACS_URCORNER
 #define ACS_URCORNER '+'
+#endif
+#ifdef ACS_VLINE
+#undef ACS_VLINE
 #endif
 #ifndef ACS_VLINE
 #define ACS_VLINE '|'
