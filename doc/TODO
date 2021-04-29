@@ -1,0 +1,15 @@
+Here are the thinks to be done or wishes for next versions.
+Warning: some are to naive or undecided yet. Write me an email
+to let me know which you find most useful.
+
+* Rework alignment to be more usable
+  (target is something like Delphi/Kylix have)
+
+* Add more widgets:
+  *  Editbox - like editline over multiple lines
+  *  Textview - area for viewing any text (file or whatever in memory)
+  *  SimpleHTML - simple html viewer (colors, bold, paragraph alignment, links)
+  *  Dropdownbox - like JTTWListLabels but not obstructing the big area
+                   except for actual selecting
+  *  ? - send me ideas of what might be useful for you
+

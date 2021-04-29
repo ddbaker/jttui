@@ -1,0 +1,107 @@
+
+Jakub Travnik's textmode user interface (JTTui) README
+
+timestamp: 2002-04-06 18:55 CEST
+
+Quick FAQ, please read it:
+
+Q: What is TUI?
+A: textmode user interface.
+
+Q: Is it usable?
+A: Yes, but it is not much documented how to use it. No warranties anyway.
+
+Q: What's the license?
+A: TUI under ruby's license. Read doc/LICENSE file for more.
+
+Q: Can I use it under GPL?
+A: Yes, see details in doc/LICENSE
+
+Q: Can I use this to do my business without releasing my changes?
+A: It is possible, see details in doc/LICENSE
+   Anyway your patches and additions are welcome. Also you may benefit
+   from them being in official jttui distribution so we will test it
+   with future versions.
+
+Q: What is ruby?
+A: Ruby is excellent programming language by Yukihiro Matsumoto.
+   Ruby home page is http://www.ruby-lang.org
+   Tui is programmed in ruby and ruby knowledge is required to use this.
+   If you want to learn ruby, buy book "Programming Ruby 
+   - The Pragmatic Programmer's Guide" or download it at
+   http://www.pragmaticprogrammer.com/ruby/downloads/book.html
+
+Q: What platforms can this run?
+A: Any unix-like with curses library, MS Windows with Cygwin.
+   I'm developing it under Linux (Mandrake 8.0).
+   See doc/PLATFORMS for reports of success or failure reports.
+   Most parts of Tui are portable, it won't be hard to rewrite mouse, key
+   and curses modules to another different platform (such as Windows or Mac).
+
+
+Contents:
+1, Installing
+2, Hacking
+3, History
+
+1, Installing
+
+Newer version of JTTui will be accessible at
+http://klokan.sh.cvut.cz/~jtra/
+
+Get recent ruby distribution http://www.ruby-lang.org/en/
+You may have it already (i.e. Linux-Mandrake 8.0).
+Note: I have seen problems with ruby 1.6.1 (in Linux-Mandrake 7.2)
+Version 1.6.2 worked fine for me, but it contains known bugs.
+You should use latest stable.
+See doc/PLATFORMS for success or failure reports with ruby versions
+and .
+
+first you have to compile jtcur.c ($ sign means your prompt)
+ $ ruby extconf.rb
+ $ make
+now you should have jtcur.so
+
+Running examples to test if it works:
+ $ cd examples
+ $ ruby example
+where example is any of example-*.rb files
+
+Installing files (as root)
+ $ make install
+ or to install in $PREFIX/local/...
+ $ make site-install
+
+You will have to define keys on first run for every terminal type.
+By default C-c (note: we use emacs naming for keys, it means ^c) will
+break program (this can be disabled).
+
+Uninstalling is not supported by makefile. Manual way comprises of
+deleteting jttui directory where it has been installed
+(usualy in /usr/lib/ruby/1.6/) and in its architecture directory
+delete jtcur.so.
+
+2, Hacking
+
+If you want to make changes, please contact me by email. I may have
+have newer version than you. You can then also get better image about what
+I'm going to do. Don't hesitate to ask how are things working because there
+is almost no documentation yet. I'm going to write it.
+There is no CVS access, nor any other versioning system used yet. I will
+probably use CVS in future.
+
+3, History
+
+see file doc/AUTHORS for details about developers of JTTui
+see file doc/THANKS for people who helped.
+
+This project was started by Jakub Travnik. JTCur library is based on
+curses.c from ruby 1.6.4 source tree, it was made by
+MAEDA Shugo (ender@pic-internet.or.jp) and modified by
+Yukihiro Matsumoto (matz@netlab.co.jp) and then heavily modified by
+Jakub Travnik to fit to JTTui project.
+All other files (except for contrib directory) were written by
+Jakub Travnik.
+
+
+__ end of README file __

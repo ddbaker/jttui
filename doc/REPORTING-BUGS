@@ -1,0 +1,70 @@
+
+This file will instruct you how to report bugs.
+
+note: bash shell is assumed, modify command to your shell if needed.
+
+PLEASE READ doc/BUGS before submitting your report.
+
+Information to include:
+(see example at end)
+
+1, Version of your system:
+ $ uname -a
+
+2, Version of ruby:
+ $ ruby --version
+
+3, Curses version - this is harder, if you have rpm system run
+ $ rpm -q ncurses
+or
+ $ rpm -q curses
+otherwise try your own method that apply to your system.
+
+4, JTTui version. It is in file doc/VERSION
+
+5, If program causing error was included example, write its name only.
+   If it was your code, send it to me, at least bug-relevant part.
+
+6, Describe what you have been doing when it happened.
+
+7, Write why do you think it is bug. (not all bugs are obvious to everyone)
+
+8, If error is reported by ruby interpreter copy&paste it or redirect
+   error output to file and include it:
+  $ ruby ./someexample.rb 2>my_error_message
+
+Send it to J.Travnik@sh.cvut.cz WITH SUBJECT CONTAINING WORD 'JTTUI',
+otherwise I or my SPAM filter (currently I don't have it but due to increasing
+amount of SPAM I get I plan to install it) may throw it away.
+You have been warned.
+
+
+Example:
+
+1,
+Linux komp2 2.4.3-20mdk #1 Sun Apr 15 23:03:10 CEST 2001 i686 unknown
+2,
+ruby 1.6.2 (2001-01-23) [i586-linux-gnu]
+3,
+ncurses-5.2-12mdk
+4,
+0.10.0/2001-09-25-13-55
+5,
+example-jttuistd-1.rb
+6,
+program crashed in startup
+7,
+program should not crash in startup
+8,
+./jttui.rb:336:in `setcursor': undefined local variable or method `this_is_name_error' for #<JTTPaintContext:0x401c61f4> (NameError)
+        from ./jttuistd.rb:863:in `paintself'
+        from ./jttui.rb:177:in `paint'
+        from ./jttui.rb:177:in `paintcontext'
+        from ./jttui.rb:177:in `paint'
+        from ./jttuistd.rb:209:in `gotfocus'
+        from ./jttui.rb:615:in `send'
+        from ./jttui.rb:615:in `sendmessage'
+        from ./jttui.rb:623:in `messageloop'
+        from ./jttui.rb:497:in `run'
+        from ./example-jttuistd-1.rb:14
+

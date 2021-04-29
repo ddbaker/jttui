@@ -1,0 +1,18 @@
+I would like to thanks to people who helped with JTTui development.
+It is possible that you are not on this list but you think you should
+be there, in that case, write me (possibly with patch of this file).
+
+People are listed with alphabetical order.
+
+
+
+Maeda Shugo: original curses.[ch]
+
+Petr Fischer (2001-12-18): windows platform report
+
+Steven Grady (2002-02-26): bugreport, vertical messagebox contrib.
+
+Tomas Borland Valenta (2002-04-07): scrollbar fill suggestion
+
+Yukihiro Matsumoto: author of the Ruby language
+

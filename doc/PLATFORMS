@@ -1,0 +1,30 @@
+This file describes successful use of JTTui on different platforms.
+I would like more entries from you.
+
+
+kernel+version	distro + version	version of ruby		status
+Linux 2.4.18	Debian woody		1.6.6			OK
+Linux 2.4.8	Mandrake 8.1		1.6.4			OK
+Linux 2.4.3	Mandrake 8.0		1.6.2			OK
+Linux 2.2.17	Mandrake 7.2		1.6.1			BAD(1)
+SunOS 5.8				1.6.5			OK(2)
+SunOS 5.7				1.6.5			OK(3)
+win32		Windows			unknown			OK(4)
+
+Genral note: ruby versions before 1.6.6 contains bug that causes deadlock
+in some multithreaded applications using JTTui. Newer versions are recommended.
+
+
+(1) this ruby version segfaults occasionally when moving windows of
+example-jtui-1.rb out of screen and back
+
+(2) output of uname -a on this system is:
+SunOS sunray2 5.8 Generic_108528-10 sun4u sparc SUNW,Sun-Blade-1000
+
+(2) output of uname -a on this system is:
+SunOS sol21 5.7 Generic_106541-17 sun4u sparc SUNW,Ultra-1
+
+(4) cygwin compiler,
+few changes to jtcur.c were required, it should not be required
+starting with 0.10.3 but I cannot confirm this.
+

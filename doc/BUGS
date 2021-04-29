@@ -1,0 +1,79 @@
+If you email me bug-report, I will update this file on the main
+web site (see README). Don't hesitate to report bugs, it may be useful for
+others. At this time I accept multiple same bug reports, to decide what
+is bigger problem for users and fix it first (this may change in future
+to avoid overload of my mailbox).
+
+See REPORTING-BUGS file to know what information is required for a bug report.
+
+This file documents known bugs and their status.
+Possible status: 
+  undecided  -  status is not yet assigned
+  fixed      -  bug is fixed in this version
+  willfix    -  bug is planned to be fixed
+  wontfix    -  bug will not be fixed
+  cantfix    -  bug cannot be fixed i.e. it's not my fault (blame others)
+  nonbug     -  it's not bug, it's a feature ;-)
+
+
+Bug 1: Mouse does not work on console when run from the midnight commander.
+cantfix: any application run in that way including mc itself have this problem
+         because mc will run it in pty instead of tty if it is run with
+         sub-shell support (use `mc -u` to run it without).
+
+Bug 2: On some terminals block of characters are not erased when they should,
+       but on others it is OK.
+       Characters appear at bad locations, but C-l redraw them OK.
+       example-jttui-2-keynames.rb does this when array of names is reseted.
+cantfix: you have bad terminfo (or possibly termcap) database of terminals
+         or you have bad TERM environment variable, this is very common.
+         The most of terminals like gnome-terminal, rxvt, aterm, ...
+         have TERM=xterm which works in normal situations, but they don't
+         interpret all xterm control sequences correctly.
+         For gnome-terminal set TERM to gnome
+         For others, try to set TERM to xterm-color
+
+Bug 3: Error message "Error opening terminal: something." at startup.
+cantfix: This is error message from curses library. It appears when you have
+         TERM variable set to terminal which is not in terminfo or termcap
+         database. Update your terminal database or set TERM variable to
+         something more suitable.
+
+Bug 4: Dependency on external program `tty`.
+willfix: Ruby doesn't have ttyname system call implemented as of 1.6.4.
+         Maybe I will place it to jtcur.c (however, this will make jtkey.rb
+         dependent on jtcur.c which might not be good.
+
+Bug 5: When used in configuration with gpm mouse and more threads are running
+       and some of them use IO objects, then keyboard input might be blocked
+       (and after clicking with mouse, some parts of keys will be read).
+cantfix: This is bug in ruby's select. I have written a patch against 1.6.5.
+	 Now recent ruby versions should contain more complete patch developed
+	 with matz. Following patch works, but I consider it now
+	 as _DEPRECATED_.
+
+-8<----------------------------------------------------------------------------
+--- io.c.old	Wed Sep  5 08:53:27 2001
++++ io.c	Sat Nov 24 22:02:11 2001
+@@ -2739,8 +2739,12 @@
+     }
+ 
+     max++;
+-
+-    n = rb_thread_select(max, rp, wp, ep, tp);
++    if (pending) {
++	    n = select(max, rp, wp, ep, tp); /* tp is zero time */
++    }
++    else {
++	    n = rb_thread_select(max, rp, wp, ep, tp);
++    }
+     if (n < 0) {
+ 	rb_sys_fail(0);
+     }
+-8<----------------------------------------------------------------------------
+
+Bug 6: JTTWScrollbox does not redraw properly when virtual windows is smaller
+       than physical. (found by Steven Grady)
+fixed: Fixed in version 0.10.3
+
+_end of file__

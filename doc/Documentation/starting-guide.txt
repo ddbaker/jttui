@@ -1,0 +1,201 @@
+JTTUI starting guide
+====================
+
+BEWARE: JTTUI is not yet considered stable both in stability of running and in
+stability of interfaces.
+
+
+Contents:
+=========
+-1, contents (you are reading it now)
+0, intro
+1, jttuistd
+2, jttui              (not yet written)
+3, jtkey and jtcur    (not yet written)
+4, Last notes
+
+0, intro
+========
+Key components a their purpose:
+jtcur    - low level screen manipulation, see example-jtcur*.rb
+jtkey    - keyboard and mouse reader, see example-jttui-2-keynames.rb
+jttui    - basic window stuff, see example-jttui-*.rb
+jttuistd - widgets for jttui, see example-jttuistd-*.rb
+
+Note on requiring jttui:
+since version 0.11.0, jttui has installer which installs files
+that user applications now have to require in following way:
+ require 'jttui/jttui' # basic jttui
+ require 'jttui/jttuistd' # widgets
+only one without 'jttui/' prefix is jtcur:
+ require 'jtcur'
+
+Actual requires depend on what you want to use.
+
+More detailed description from high to low level:
+
+1, jttuistd
+===========
+
+Jttuistd offers these widgets (there may be more, see jttuistd.rb)
+(JTTWindow)              - this is root of all these, defined in jttui.rb
+ +--JTTFrame             - window with frame
+ |  +--JTTDialog         - modal dialog window, usually base of project with
+ |                         jttuistd widgets
+ +--JTTWidget            - base for widgets that appear on dialogs
+    +--JTTWLabel         - basic label, can have assigned action on key-press
+    |                      of hilighted action
+    +--JTTFocusable      - this class is good as base for windows you want to
+    |  |                   change active widget by TAB or arrows between others
+    |  |                   on same dialog
+    |  +--JTTWButton     - basic button
+    |  +--JTTWCheckbox   - checkbox have state: checked,unchecked (and possibly
+    |  |                   third state: unknown)
+    |  +--JTTWRadiogroup - radiogroup have associated states defined by text
+    |  |                   names
+    |  +--JTTWEditline   - text-editing widget with emacs-like edit bindings
+    |  |                   (see jttuistd.rb for bindings)
+    |  +--JTTWScrollbox  - scroll box that can contain other widgets
+    |  +--JTTWList       - abstract vertical list class
+    |  |  +--JTTWListLabels     - list of labels
+    |  |  +--JTTWListButtons    - list of buttons
+    |  |  +--JTTWListCheckboxes - list of checkboxes
+    |  |  +--JTTWTree    - tree sctructures, elements are appended
+    |  |                   using TreeNode subclasses
+    |  +--JTTWScrollbar
+    +--JTTWGrid          - rectangular array of widget.
+                           Keys left,right,up,down,
+                           C-b, C-f, C-p, C-n are assigned to allow orthogonal
+                           movement over widgets.
+JTTWMessagebox           - this is class allows to execute window with text and
+                           possible choices (buttons)
+
+JTTreeNode      - independent on JTTui, data part of JTTWTree and JTWMenu
++--JTTWTreeNode - subclass with information about expansion of subtree
+   +--JTTWTreeNodeLabel
+   |            - subclass with drawing capatibilities
+   +--JTTWTreeNodeCheckbox
+                - subclass with drawing capatibilities and state
+
+
+constructors for common widgets
+-------------------------------
+
+common parameters:
+parent_window
+internal_name     - this name is useful for debugging
+x,y,w,h           - position coordinates and width and height (in characters)
+caption,title     - some text on the widget
+some_dialog       - dialog (JTTDialog) or some sub-window of dialog
+
+
+JTTDialog.new(parent_window, internal_name, x,y,w,h, title)
+
+
+JTTWButton.new(some_dialog, internal_name, x,y,w,h, caption) {
+ on_action_block }
+
+
+JTTWEditline.new(some_dialog, internal_name, x,y,w,h, default_text,
+ allow_editing) { on_change_block }
+
+JTTWLabel.new(some_dialog, internal_name, x,y,w,h, caption){
+    on_hilighted_letter_press_action}
+
+JTTWCheckbox.new(some_dialog, internal_name, x,y,w,h, caption, no_of_states){
+    on_change_block }
+no_of_states      - 2 or 3 for two choices: [ ] [x]
+                    or three choices: [ ] [x] [?] resp.
+
+JTTWRadiogroup.new(some_dialog, internal_name, x,y,w,h, array_of_choices,
+    default_choice) { on_change_block}
+array_of_choices  - array of choice strings
+default_choice    - number of default choice or -1
+
+g=JTTWGrid.new(some_dialog,internal_name,x,y,w,h)
+g.setcontent(xspacing,yspacing,
+             [b11,b12,b13,...],
+	     [b21,....       ],
+	     [.   ....       ],
+	     [.   ....       ],
+	     [.   ....       ],
+	     [.   ....       ])
+xspacing          - spacing of inner object on x axis (in character width)
+yspacing          - spacing of inner object on y axis (in character width)
+b11 ....          - inner widgets, must be JTTFocusWindow compatible
+
+
+m=JTTWMessagebox.new(caption, default_button_nr, cancel_button_nr,
+    buttons... )
+result=m.execute(optional_caption)
+
+default_button_nr - number of button that is preselected
+cancel_button_nr  - number of button that respond to 'esc' key or
+                    -1  = on 'esc' key dialog is aborted with result=-1
+                    nil = no action on 'esc' key
+buttons...        - one or more parameters describing caption of each buttons
+optional_caption  - you can change text of messagebox temporarily,
+                    this is optional parameter, i.e. you can call
+                    result=m.execute
+result            - number of button user pressed or -1
+
+note: messagebox is displayed each time execute method of the JTTWMessagebox
+      object is called
+
+common idioms
+-------------
+
+Widgets that accept block can have it assigned dynamically:
+mybutton.block = Proc.new { ... }
+
+Hilighted letters are prefixed with underscore character, this can be escaped
+by two underscores.
+mybutton.caption = '_This is hilight, __ this is undescore'
+
+Although you can call paint method directly, don't do it. Insert it in message
+queue:
+addmessage self,:paint
+so the paint messages can be optimized in JTTui.getmessage (this is significant
+performance improvement!)
+Same applies to other messages such as gotfocus, lostfocus but optimalization
+is not implemented yet.
+
+In paint handler, check yourpaintcontext.clippingrectangle to know what parts
+needs to be redrawn, especially in large object in small scroll boxes.
+
+Messagebox can be reused. Use generic messageboxes:
+m=JTTWMessagebox.new('Default question', 0, 1, '_Yes', '_No')
+result1=m.execute 'This is my question'
+result2=m.execute 'This is another question'
+result3=m.execute                # the default question
+result4=m.execute 'This is yet another question'
+
+Make sure your application can be used without mouse!
+
+
+2, jttui
+========
+
+not yet written - see jttui.rb
+
+small note:
+
+ Allocating colors:
+  JTTui.colors << JTTColor.new('color_myname',
+			       JTCur.color_black,JTCur.color_green,0,
+			       JTCur.attr_bold).recompute
+ using:
+  something.color=JTTui.color_myname
+
+3, jtkey and jtcur
+==================
+
+not yet written - see jtkey.rb and jtcur/jtcur.c
+
+
+4, Last notes
+=============
+
+Have fun with JTTui!
+
+__end of starting-guide.txt file__
