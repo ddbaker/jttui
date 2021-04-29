@@ -1,6 +1,6 @@
 /*
  * jtcur.c
- * 
+ *
  * verison 0.11.0/2002-05-08 20:55 CET
  *
  * license: Ruby's, see documentation included in this package
@@ -27,7 +27,7 @@
  */
 
 /* cygwin curses hack, it causes redefinition warning, ignore it */
-#define ACS_BLOCK '#' 
+#define ACS_BLOCK '#'
 #define ACS_BOARD '#'
 #define ACS_BTEE '+'
 #define ACS_BULLET 'o'
@@ -515,10 +515,10 @@ static VALUE jtcur_setclip(obj, vsx, vsy, vex, vey)
     jtcur_sy=NUM2INT(vsy);
     jtcur_ex=NUM2INT(vex);
     jtcur_ey=NUM2INT(vey);
-    
+
     return Qnil;
 }
-			    
+
 
 /* def lines */
 static VALUE jtcur_lines()
@@ -734,7 +734,7 @@ jtcur_crop(ignored,vax,vbx,vay,vby,vaw,vbw,vah,vbh)
 
 	ay=FIX2INT(vay); by=FIX2INT(vby);
 	ah=FIX2INT(vah); bh=FIX2INT(vbh);
-	
+
 	newsy=JTMAX(ay, by);
 	as=ay+ah; bs=by+bh;
 	newey=JTMIN(as, bs);
@@ -863,7 +863,7 @@ void Init_jtcur()
     rb_define_module_function(mJTCur, "acs_vline", jtcur_acs_vline, 0);
 
     rb_define_module_function(mJTCur, "crop", jtcur_crop, 8);
-    
+
     rb_define_module_function(mJTCur, "ttyname", jtcur_ttyname, 1);
 
     rb_set_end_proc(jtcur_finalize, 0);
