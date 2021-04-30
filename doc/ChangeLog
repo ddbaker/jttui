@@ -1,3 +1,8 @@
+2021-04-30  Donarno Dan Baker
+
+	* all programs are ported to ruby-2.7.2 and 3.0.1 environment.
+	* version 0.20.0 git tag is given.
+
 2002-05-08  Jakub Travnik
 
 	* version 0.11.0 released
