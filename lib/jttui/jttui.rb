@@ -744,19 +744,20 @@ module JTTui
     @modalwindows = []
     @abswpos = {}
     @delmh = {}
+    m = Thread::Mutex.new
     begin
       curinitseq true
       paint!
       @root = JTTRootWindow.new
       @activewindow = @root
       trap("WINCH") {
-        oldstate = Thread.critical
-        Thread.critical = true
-        curdoneseq
-        curinitseq
-        # make root window full redraw
-        addmessage nil, :resized
-        Thread.critical = oldstate
+        if m.try_lock
+          curdoneseq
+          curinitseq
+          # make root window full redraw
+          addmessage nil, :resized
+          m.unlock
+        end
       }
       catch :quitrootloop do
         yield @root if block_given?
@@ -765,6 +766,7 @@ module JTTui
     ensure
       trap "WINCH", "DEFAULT"
       curdoneseq
+      m.unlock if m.locked?
       JTKey.close_key
     end
   end
