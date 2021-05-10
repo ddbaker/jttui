@@ -38,7 +38,7 @@ Please refer [JTTUI starting guide](./doc/Documentation/starting-guide.txt).
 ### Limitations
 * Only ASCII charactors can be properly handled. 
   Multibyte charactors does not work.
-* Changing terminal window size will cause program abort.
+
 ### License
 This program is protected by copyright.
 See more in [doc/LICENSE](./doc/LICENSE) file.
