@@ -27,9 +27,13 @@ $ sudo make install
 ### How to use
 Sample scripts under `examples/` are good starting point.
 * example-jttuistd-1-simple.rb
+
+
 ![example-jttuistd-1-simple.rb](./doc/image/example-jttuistd-1-simple-trim.png)
 
 * example-jttuistd-2-calculator.rb
+
+
 ![example-jttuistd-2-calculator.rb](./doc/image/example-jttuistd-2-calculator-trim.png)
 
 ### Code structure
